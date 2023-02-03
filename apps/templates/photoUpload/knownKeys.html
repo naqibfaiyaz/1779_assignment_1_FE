@@ -1,0 +1,108 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Tables {% endblock %} 
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- [ Main Content ] start -->
+    <section class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class="page-header">
+                        <div class="page-block">
+                            <div class="row align-items-center">
+                                <div class="col-md-12">
+                                    <div class="page-header-title">
+                                        <h5 class="m-b-10">All Keys</h5>
+                                    </div>
+                                    <ul class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <!-- [ collapse ] start -->
+                                <div class="col-sm-12">
+                                    <h5 class="mb-3">Basic Collapse</h5>
+                                    <hr>
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <a class="btn btn-primary m-t-5" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">Delete All</a>
+                                        </div>
+                                        <div class="collapse" id="collapseExample">
+                                        <div class="card-body">
+                                                <p class="mb-0">This will delete all the keys from database as well as cache. Please press confirm to proceed</p>
+                                                <a type="button" class="btn btn-outline-danger mt-3 mb-5 float-right" href="{{ url_for('photoUpload_blueprint.deleteAllKeys') }}">Confirm</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- [ Hover-table ] start -->
+                                <div class="col-xl-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Key list</h5>
+                                        </div>
+                                        {% if msg %}
+                                            <div class="card"><h5 class="text-info">{{ msg | safe }}</h5></div>
+                                            {% endif %}
+                                        <div class="card-block table-border-style">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>id</th>
+                                                            <th>Key</th>
+                                                            <th>Img Path</th>
+                                                            <th>Created at</th>
+                                                            <th>Updated at</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% if keysFromDB %}
+                                                            {% for key in keysFromDB %}
+                                                            <tr>
+                                                                <th scope="row">{{keysFromDB[key].id}}</th>
+                                                                <td>{{keysFromDB[key].key}}</td>
+                                                                <td>{{keysFromDB[key].img_path}}</td>
+                                                                <td>{{keysFromDB[key].created_at}}</td>
+                                                                <td>{{keysFromDB[key].updated_at}}</td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- [ Hover-table ] end -->
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    <!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

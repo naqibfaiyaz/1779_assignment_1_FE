@@ -1,0 +1,98 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Forms {% endblock %} 
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- [ Main Content ] start -->
+    <div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class="page-header">
+                        <div class="page-block">
+                            <div class="row align-items-center">
+                                <div class="col-md-12">
+                                    <div class="page-header-title">
+                                    </div>
+                                    <ul class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                        <li class="breadcrumb-item"><a href="javascript:">Cache Settings</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Cache Settings</h5>
+                                        </div>
+                                        
+                                        <div class="card-body">
+                                            {% if policies %}
+                                            <div class="row col-md-6">
+                                                <div>
+                                                    <span class="text-success">
+                                                        Current Replacement Policy:</span>
+                                                    <span class="text-success">
+                                                        {{ policies.memcache_policy }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="row col-md-6">
+                                                <div>
+                                                <span class="text-success">
+                                                    Current Capacity: </span>
+                                                <span class="text-success">
+                                                    {{ policies.memcache_capacity/1024/1024 }}MB</span>
+                                                </div>
+                                            </div>
+                                            {% endif %} 
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <form action="{{ url_for('photoUpload_blueprint.changePolicy') }}" method="post">
+                                                        <div class="form-group">
+                                                            <label for="exampleFormControlSelect1">Select Replacement Policy</label>
+                                                            <select name="replacement_policy" class="form-control" id="exampleFormControlSelect1">
+                                                                <option value="LRU">LRU</option>
+                                                                <option value="random">Random</option>
+                                                                <option value="no_cache">No Cache</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="key">capacity in MB</label>
+                                                            <input type="number" class="form-control" id="key" name="capacity" placeholder="Enter the key">
+                                                        </div>
+                                                        <button type="submit" name="savePhoto" class="btn btn-primary">Update Policy</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Input group -->
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

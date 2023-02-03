@@ -13,7 +13,6 @@ from apps.services.home.routes import get_segment
 @blueprint.route('/index')
 # @login_required
 def index():
-
     return render_template('home/index.html', segment='index')
 
 
@@ -31,6 +30,10 @@ def route_template(template):
         # Serve the file (if exists) from app/templates/home/FILE.html
         if segment=='photos.html':
             return render_template("photoUpload/photos.html", memcache=getAllPhotos())
+        elif segment=='knownKeys.html':
+            return render_template("photoUpload/knownKeys.html", keysFromDB=getDBAllPhotos())
+        elif segment=='cache.html':
+            return render_template("photoUpload/cache.html", policies=getPolicy())
         return render_template("photoUpload/" + template, segment=segment.replace('.html', ''))
 
     except TemplateNotFound:
@@ -76,9 +79,9 @@ def getSinglePhoto(url_key):
     elif "content" not in cacheData and "error" in cacheData:
         return render_template("photoUpload/addPhoto.html", msg=cacheData["error"]["message"], key=key)
 
-@blueprint.route('/getAll',methods=['POST'])
+@blueprint.route('/getAllCache',methods=['POST'])
 def getAllPhotos():
-    return requests.post(api_endpoint + '/list_keys').json()["content"]
+    return requests.post(api_endpoint + '/list_cache').json()["content"]
 
 @blueprint.route('/invalidate_key/<url_key>',methods=['GET', 'POST'])
 def invalidateKey(url_key) :
@@ -86,3 +89,30 @@ def invalidateKey(url_key) :
     logger.info("invalidateKey response: " + str(response))
     
     return redirect(url_for("photoUpload_blueprint.route_template", template="photos.html"))
+
+@blueprint.route('/getAllFromDB',methods=['POST'])
+def getDBAllPhotos():
+    return requests.post(api_endpoint + '/list_keys').json()["content"]
+
+
+@blueprint.route('/deleteAllKeys',methods=['GET'])
+def deleteAllKeys():
+    resposne = requests.post(api_endpoint + '/delete_all').json()
+
+    if 'success' in resposne and resposne['success']=='true':
+        return redirect(url_for("photoUpload_blueprint.route_template", template="knownKeys.html", msg="All Keys are deleted"))
+
+
+@blueprint.route('/changePolicy',methods=['POST'])
+def changePolicy():
+    policy = request.form.get("replacement_policy")
+    newCapacity = int(request.form.get("capacity"))
+    print(policy, newCapacity)
+    resposne = requests.post(api_endpoint + '/refreshConfig', data={"replacement_policy": policy,"capacity": newCapacity*1024*1024}).json()
+
+    if 'success' in resposne and resposne['success']=='true':
+        return redirect(url_for("photoUpload_blueprint.route_template", template="cache.html"))
+        
+@blueprint.route('/getCurrentPolicy',methods=['POST'])
+def getPolicy():
+    return requests.get(api_endpoint + '/getConfig').json()['content']
