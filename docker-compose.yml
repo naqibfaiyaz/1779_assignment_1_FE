@@ -1,15 +1,15 @@
-version: '3.8'
+version: '3.3'
 services:
-  appseed-app:
-    container_name: appseed_app
+  assignment1_fe:
+    container_name: assignment1_fe
     restart: always
     env_file: .env
     build: .
     networks:
       - db_network
       - web_network
-  nginx:
-    container_name: nginx
+  nginx_fe:
+    container_name: nginx_fe
     restart: always
     image: "nginx:latest"
     ports:
@@ -19,7 +19,7 @@ services:
     networks:
       - web_network
     depends_on: 
-      - appseed-app
+      - assignment1_fe
 networks:
   db_network:
     driver: bridge
