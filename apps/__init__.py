@@ -13,7 +13,7 @@ import logging, doctest
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
-api_endpoint='http://localhost:5000/api'
+api_endpoint= os.getenv('IPADDR', 'http://localhost') + ":" + os.getenv('IPPORT', '5000') + '/api'
 # login_manager = LoginManager()
 
 # def register_extensions(app):
@@ -52,7 +52,6 @@ def register_blueprints(app):
 def create_app(config):
     app = Flask(__name__)
     app.config.from_object(config)
-    logger.info(config)
     # register_extensions(app)
     register_blueprints(app)
     # configure_database(app)
