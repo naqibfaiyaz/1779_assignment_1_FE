@@ -53,7 +53,7 @@ def putPhoto():
         
         logger.info('Put request received- ' + str(response))
 
-        return render_template("photoUpload/photos.html", msg=response["msg"], memcache=getAllPhotos())
+        return render_template("photoUpload/addPhoto.html", msg=response["msg"])
     elif request.form.get('key'):
         key = request.form.get('key')
         cacheData = requests.post(api_endpoint + '/key/' + key, data={"key": key}).json()
