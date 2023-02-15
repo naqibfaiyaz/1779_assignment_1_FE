@@ -52,7 +52,7 @@
                                                         <tr>
                                                             <th>#</th>
                                                             <th>Key</th>
-                                                            <th>Image</th>
+                                                            <!-- <th>Image</th> -->
                                                             <th>Created at</th>
                                                             <th>Accessed at</th>
                                                             <th>View</th>
@@ -65,11 +65,11 @@
                                                             <tr>
                                                                 <th scope="row">{{loop.index}}</th>
                                                                 <td>{{key}}</td>
-                                                                <td><img src={{memcache[key].img}} width="50"/></td>
+                                                                <!-- <td><img src={{memcache[key].img}} width="50"/></td> -->
                                                                 <td>{{memcache[key].created_at}}</td>
                                                                 <td>{{memcache[key].accessed_at}}</td>
                                                                 <td><a href="{{ url_for('photoUpload_blueprint.getSinglePhoto', url_key=key) }}" type="button" class="btn btn-info" title="View to Edit" data-toggle="tooltip" name="getPhoto">View & Edit</a></td>
-                                                                {% if memcache[key].img %}
+                                                                {% if memcache[key].created_at %}
                                                                 <td><a href="{{ url_for('photoUpload_blueprint.invalidateKey', url_key=key) }}" type="button" class="btn btn-warning" title="Invalidate" data-toggle="tooltip" name="invalidatePhoto">Invalidate</a></td>
                                                                 {% endif %}
                                                             </tr>
