@@ -26,8 +26,14 @@ def getPartitionRange(key):
 @blueprint.route('/getAllPartitions', methods=['GET'])
 # @login_required
 def getPartitionAll():
-    response = nodePartitions.query.all()
-    allPartitions = [i.serialize for i in response]
+    response = db.session.query(nodePartitions, memcacheNodes).join(memcacheNodes).all()
+    print(response)
+    allPartitions=[]
+    for i in response:
+        nodeData = i.nodePartitions.serialize
+        nodeData['assigned_instance_status'] = i.memcacheNodes.status
+        print(nodeData)
+        allPartitions.append(nodeData)
     
     return Response(json.dumps(allPartitions, default=str), status=200, mimetype='application/json')
 
