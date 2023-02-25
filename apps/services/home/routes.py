@@ -7,13 +7,63 @@ from apps.services.home import blueprint
 from flask import render_template, request
 from flask_login import login_required
 from jinja2 import TemplateNotFound
+from apps.services.nodePartitions.models import nodePartitions, memcacheNodes
+import boto3
+from apps import AWS_ACCESS_KEY, AWS_SECRET_KEY, db
 
 
 @blueprint.route('/')
 # @login_required
 def RedirectIndex():
+    ec2 = boto3.client('ec2',
+        aws_access_key_id=AWS_ACCESS_KEY,
+        aws_secret_access_key=AWS_SECRET_KEY)
+    
+    instances = ec2.describe_instances(
+        Filters=[
+        {
+            'Name': 'tag:purpose',
+            'Values': [
+                'memcache_node',
+            ]
+        },
+    ])
 
-    return render_template('home/index.html', segment='index')
+    newMemcacheNodes=[]
+    if memcacheNodes.query.count()==0:
+        for instance in instances['Reservations']:
+            if instance['Instances'][0]['State']['Name']=='running':
+                instanceId = instance['Instances'][0]['InstanceId']
+                instancePrivateIp = instance['Instances'][0]['PrivateIpAddress']
+                instancePublicIp = instance['Instances'][0]['PublicIpAddress']
+                newMemcacheNodes.append(memcacheNodes(Instance_id = instanceId,
+                        private_ip = instancePrivateIp, public_ip= instancePublicIp, status='active'))
+        db.session.add_all(newMemcacheNodes)   
+        db.session.commit()
+    
+    if nodePartitions.query.count()==0:
+        newNodePartitions=[
+            nodePartitions(range_start = '00000000000000000000000000000000', range_end = '0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = '10000000000000000000000000000000', range_end = '1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = '20000000000000000000000000000000', range_end = '2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = '30000000000000000000000000000000', range_end = '3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = '40000000000000000000000000000000', range_end = '4FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = '50000000000000000000000000000000', range_end = '5FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = '60000000000000000000000000000000', range_end = '6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = '70000000000000000000000000000000', range_end = '7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = '80000000000000000000000000000000', range_end = '8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = '90000000000000000000000000000000', range_end = '9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = 'A0000000000000000000000000000000', range_end = 'AFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = 'B0000000000000000000000000000000', range_end = 'BFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = 'C0000000000000000000000000000000', range_end = 'CFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = 'D0000000000000000000000000000000', range_end = 'DFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = 'E0000000000000000000000000000000', range_end = 'EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+            nodePartitions(range_start = 'F0000000000000000000000000000000', range_end = 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+            ]
+        db.session.add_all(newNodePartitions)   
+        db.session.commit()
+
+    return index()
 
 @blueprint.route('/index')
 # @login_required
