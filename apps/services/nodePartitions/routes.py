@@ -49,7 +49,7 @@ def updatePartition():
     return nodePartitions.query.filter_by(id=partitionForInstance).first().serialize
 
 
-@blueprint.route('/getNumNodes',methods=['GET'])
+@blueprint.route('/getActiveNodes',methods=['GET'])
 # @login_required
 def getActiveNodes():
     response = memcacheNodes.query.filter_by(status='active')
@@ -67,3 +67,12 @@ def updateNodeStatus():
     db.session.commit()
     
     return memcacheNodes.query.filter_by(id=instanceToChange).first().serialize
+
+@blueprint.route('/getAllNodes', methods=['GET'])
+# @login_required
+def getNodesAll():
+    response = db.session.query(memcacheNodes).all()
+    allActiveNodes = [i.serialize for i in response]
+    
+    return Response(json.dumps({'success': 'true', 'numNodes': len(allActiveNodes), 'details': allActiveNodes}, default=str), status=200, mimetype='application/json')
+    
