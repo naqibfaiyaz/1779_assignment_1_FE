@@ -39,9 +39,9 @@ def getPartitionAll():
 
 @blueprint.route('/updateInstance', methods=['POST'])
 # @login_required
-def updatePartition():
-    instanceToAssign = request.form.get('instance_id_to_assign')
-    partitionForInstance = request.form.get('partition_id')
+def updatePartition(node_id=None, partition_id=None):
+    instanceToAssign = request.form.get('instance_id_to_assign') or node_id
+    partitionForInstance = request.form.get('partition_id') or partition_id
     getPartitionDetail = nodePartitions.query.filter_by(id=partitionForInstance).first()
     getPartitionDetail.assigned_instance=instanceToAssign
     db.session.commit()
@@ -75,4 +75,37 @@ def getNodesAll():
     allActiveNodes = [i.serialize for i in response]
     
     return Response(json.dumps({'success': 'true', 'numNodes': len(allActiveNodes), 'details': allActiveNodes}, default=str), status=200, mimetype='application/json')
+
+@blueprint.route('/reassignPartitions', methods=['POST'])
+def reassignPartitions():
+
+    # get all active nodes
+    active_nodes = getActiveNodes()
+    print(active_nodes)
+    num_nodes = active_nodes['numNodes']
     
+    all_nodes = active_nodes['details']
+
+    # enumerate them and assign partitions to them %(#active nodes)
+    num_partitions = 16
+    for i in range(num_partitions):
+        node_to_be_assigned = all_nodes[i % num_nodes]['public_ip']
+        updatePartition(node_to_be_assigned, i)
+
+    # Waiting until AWS servers are live 
+    # reassignKeys()
+
+@blueprint.route('/reassignKeys', methods=['POST'])
+def reassignKeys():
+
+    # get active keys in memcache
+    api_endpoint = getPartitionRange('test')['node_data']['public_ip'] + ':5000'
+    keys = requests.post(api_endpoint + '/list_keys').json()["content"]
+
+    for key in keys:
+
+        # get md5 hash for key, determine partition -> instance it will go in
+        api_endpoint = getPartitionRange(key)['node_data']['public_ip'] + ':5000'
+
+        # put the key in that instance according to replacement policy
+        requests.post(api_endpoint + '/key/' + key, data={"key": key}).json()
