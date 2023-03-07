@@ -80,8 +80,7 @@ def getNodesAll():
 def reassignPartitions():
 
     # get all active nodes
-    active_nodes = getActiveNodes()
-    print(active_nodes)
+    active_nodes = json.loads(getActiveNodes().data)
     num_nodes = active_nodes['numNodes']
     
     all_nodes = active_nodes['details']
@@ -89,23 +88,31 @@ def reassignPartitions():
     # enumerate them and assign partitions to them %(#active nodes)
     num_partitions = 16
     for i in range(num_partitions):
-        node_to_be_assigned = all_nodes[i % num_nodes]['public_ip']
-        updatePartition(node_to_be_assigned, i)
+        node_to_be_assigned = all_nodes[i % num_nodes]['id']
+        updatePartition(node_to_be_assigned, i+1)
 
     # Waiting until AWS servers are live 
     # reassignKeys()
 
+    return getPartitionAll()
+
 @blueprint.route('/reassignKeys', methods=['POST'])
 def reassignKeys():
 
-    # get active keys in memcache
-    api_endpoint = getPartitionRange('test')['node_data']['public_ip'] + ':5000'
-    keys = requests.post(api_endpoint + '/list_keys').json()["content"]
+    try:
+        # get active keys in memcache
+        api_endpoint = getPartitionRange('test')['node_data']['public_ip'] + ':5000'
+        keys = requests.post(api_endpoint + '/list_keys').json()["content"]
 
-    for key in keys:
+        for key in keys:
 
-        # get md5 hash for key, determine partition -> instance it will go in
-        api_endpoint = getPartitionRange(key)['node_data']['public_ip'] + ':5000'
+            # get md5 hash for key, determine partition -> instance it will go in
+            api_endpoint = getPartitionRange(key)['node_data']['public_ip'] + ':5000'
 
-        # put the key in that instance according to replacement policy
-        requests.post(api_endpoint + '/key/' + key, data={"key": key}).json()
+            # put the key in that instance according to replacement policy
+            requests.post(api_endpoint + '/key/' + key, data={"key": key}).json()
+
+        return {"success": 'true'}
+
+    except:
+        return {"success": 'false'}
