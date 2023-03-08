@@ -1,0 +1,144 @@
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <!-- [ breadcrumb ] start -->
+                <div class="page-header">
+                    <div class="page-block">
+                        <div class="row align-items-center">
+                            <div class="col-md-12">
+                                
+                                <ul class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                    <li class="breadcrumb-item"><a href="javascript:">Dashboard</a></li>
+                                    
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- [ breadcrumb ] end -->
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Manager</h5>
+                                    </div>
+                                    <div class="card-block">
+                                        <button type="button" class="btn btn-primary" title="show charts and statistics"
+                                            data-toggle="tooltip">Statistics</button>
+                                        <button type="button" class="btn btn-danger"
+                                            title="clear data of RDS, S3 and memcache" data-toggle="tooltip">Delete
+                                            All</button>
+                                        <button type="button" class="btn btn-warning"
+                                            title="clear data of memcache nodes" data-toggle="tooltip">Clear
+                                            Memcache</button>
+
+                                    </div>
+                                </div>
+                            </div>
+                            
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Memcache</h5>
+                                    </div>
+                                    <div class="card-block">
+                                        <div class="btn-group mb-2 mr-2">
+                                            <button class="btn btn-primary dropdown-toggle" type="button"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select
+                                                Mode</button>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="#!">Manual</a>
+                                                <a class="dropdown-item" href="#!">Automatic</a>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Manual Mode</h5>
+                                    </div>
+                                    <div class="card-block">
+                                        <button type="button" class="btn btn-square btn-secondary"
+                                            title="Decrease number of nodes by 1">Decrease</button>
+                                        <button type="button" class="btn btn-square btn-success"
+                                            title="Increase number of nodes by 1">Increase</button>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- FORMS -->
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Automatic Mode</h5>
+                                    </div>
+                                    <div class="card-body">
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <form>
+
+                                                    <div class="form-group">
+                                                        
+                                                        <input type="password" class="form-control"
+                                                            id="maxrate"
+                                                            placeholder="Max miss rate threshold">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="password" class="form-control"
+                                                            id="minrate"
+                                                            placeholder="Min miss rate threshold">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="password" class="form-control"
+                                                            id="ratio_expand"
+                                                            placeholder="Ratio by which to expand the pool">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="password" class="form-control"
+                                                            id="ratio_shrink"
+                                                            placeholder="Ratio by which to shrink the pool">
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                                </form>
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                                <!-- Input group -->
+
+                            </div>
+                        </div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- [ Main Content ] end -->
