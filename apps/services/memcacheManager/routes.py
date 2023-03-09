@@ -79,7 +79,6 @@ def getAllPhotosFromCache():
     allCache['success']='true'
     
     print(allCache)
-        # need to accumulate all the cache
     return allCache
 
 @blueprint.route('/invalidate_key/<url_key>',methods=['GET', 'POST'])
