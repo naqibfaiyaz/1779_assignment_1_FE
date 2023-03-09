@@ -121,8 +121,9 @@ def changePolicyInDB(policyParam=None, cacheSizeParam=None):
     maxMiss = request.args.get('maxMiss'), 
     minMiss = request.args.get('minMiss')
     
-    response = requests.post(policyManagementUrl+"/refreshConfig", params={'mode': mode, 'numNodes': numNodes, 'cacheSize': cacheSize, 'policy': policy, 'expRatio': expRatio, 'shrinkRatio': shrinkRatio, 'maxMiss': maxMiss, 'minMiss': minMiss}).content
+    response = requests.post(policyManagementUrl+"/refreshConfig", params={'mode': mode, 'numNodes': numNodes, 'cacheSize': cacheSize, 'policy': policy, 'expRatio': expRatio, 'shrinkRatio': shrinkRatio, 'maxMiss': maxMiss, 'minMiss': minMiss})
 
+    print(response)
 
     if policy and cacheSize:
         print(policy, cacheSize)
@@ -134,7 +135,7 @@ def changePolicyInDB(policyParam=None, cacheSizeParam=None):
             print(tempData)
     # response = requests.post('http://' + getNodeForKey['public_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": newCapacity})
 
-    return Response(json.dumps(json.loads(response)), status=200, mimetype='application/json')
+    return Response(json.dumps(json.loads(response.content)), status=200, mimetype='application/json')
         # ?policy=no_cache&mode=manual&numNodes=3
 @blueprint.route('/getCurrentPolicy/<ip>',methods=['POST', 'GET'])
 def getPolicyFromDB(ip):
