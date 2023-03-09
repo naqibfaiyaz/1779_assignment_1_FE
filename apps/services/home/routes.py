@@ -4,7 +4,7 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from apps.services.home import blueprint
-from flask import render_template, request
+from flask import render_template, request, json
 from flask_login import login_required
 from jinja2 import TemplateNotFound
 from apps.services.nodePartitions.models import nodePartitions, memcacheNodes
@@ -23,9 +23,9 @@ def RedirectIndex():
     instances = ec2.describe_instances(
         Filters=[
         {
-            'Name': 'tag:name',
+            'Name': 'tag:Name',
             'Values': [
-                'memcache_node',
+                'memcache',
             ]
         },
     ])
@@ -33,14 +33,15 @@ def RedirectIndex():
     newMemcacheNodes=[]
     if memcacheNodes.query.count()==0:
         for instance in instances['Reservations']:
-            if instance['Instances'][0]['State']['Name']=='running':
-                instanceId = instance['Instances'][0]['InstanceId']
-                instancePrivateIp = instance['Instances'][0]['PrivateIpAddress']
-                instancePublicIp = instance['Instances'][0]['PublicIpAddress']
-                newMemcacheNodes.append(memcacheNodes(Instance_id = instanceId,
-                        private_ip = instancePrivateIp, public_ip= instancePublicIp, status='active'))
-        db.session.add_all(newMemcacheNodes)   
-        db.session.commit()
+            for node in instance['Instances']:
+                if node['State']['Name']=='running':
+                    instanceId = node['InstanceId']
+                    instancePrivateIp = node['PrivateIpAddress']
+                    instancePublicIp = node['PublicIpAddress']
+                    newMemcacheNodes.append(memcacheNodes(Instance_id = instanceId,
+                            private_ip = instancePrivateIp, public_ip= instancePublicIp, status='active'))
+            db.session.add_all(newMemcacheNodes)   
+            db.session.commit()
     
     if nodePartitions.query.count()==0:
         newNodePartitions=[
