@@ -9,11 +9,11 @@
                     <div class="page-block">
                         <div class="row align-items-center">
                             <div class="col-md-12">
-                                
+
                                 <ul class="breadcrumb">
                                     <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
                                     <li class="breadcrumb-item"><a href="javascript:">Dashboard</a></li>
-                                    
+
                                 </ul>
                             </div>
                         </div>
@@ -27,40 +27,51 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Manager</h5>
+                                        <h5>Tasks</h5>
                                     </div>
                                     <div class="card-block">
-                                        <button type="button" class="btn btn-primary" title="show charts and statistics"
-                                            data-toggle="tooltip">Statistics</button>
-                                        <button type="button" class="btn btn-danger"
-                                            title="clear data of RDS, S3 and memcache" data-toggle="tooltip">Delete
-                                            All</button>
-                                        <button type="button" class="btn btn-warning"
-                                            title="clear data of memcache nodes" data-toggle="tooltip">Clear
-                                            Memcache</button>
+                                        <form action='/UI/show_stats'>
+                                            <button type="submit" name="show_stats" title="Show Statistics"
+                                                class="btn btn-primary">Show charts</button>
+                                        </form>
+                                        <form action='/UI/delete_all'>
+                                            <button type="submit" name="delete_all"
+                                                title="clear data of RDS, S3 and memcache" class="btn btn-danger">Delete
+                                                All</button>
+                                        </form>
+                                        <form action='/UI/clear_cache'>
+                                            <button type="submit" name="clear_memcache"
+                                                title="clear data of memcache nodes" class="btn btn-warning">Clear
+                                                Cache</button>
+                                        </form>
+
 
                                     </div>
                                 </div>
                             </div>
-                            
+
 
                         </div>
                         <div class="row">
                             <div class="col-md-12">
+
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Memcache</h5>
+                                        <h5>Select Mode</h5>
                                     </div>
                                     <div class="card-block">
-                                        <div class="btn-group mb-2 mr-2">
-                                            <button class="btn btn-primary dropdown-toggle" type="button"
-                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select
-                                                Mode</button>
-                                            <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#!">Manual</a>
-                                                <a class="dropdown-item" href="#!">Automatic</a>
-                                            </div>
-                                        </div>
+                                        <form action='/UI/manual' method="POST">
+                                            <button type="submit" name="manual" title='Click to select Manual mode'
+                                                class="btn btn-light">Manual</button>
+                                        </form>
+                                        <form action='/UI/auto' method="POST">
+                                            <button type="submit" title='Click to select Automatic mode' name="auto"
+                                                class="btn btn-dark">Automatic</button>
+                                        </form>
+                                        {%if curr_mode%}
+                                        </br>
+                                        <p>Current mode: {{curr_mode}}</p>
+                                        {% endif %}
 
                                     </div>
                                 </div>
@@ -71,12 +82,21 @@
                                         <h5>Manual Mode</h5>
                                     </div>
                                     <div class="card-block">
-                                        <button type="button" class="btn btn-square btn-secondary"
-                                            title="Decrease number of nodes by 1">Decrease</button>
-                                        <button type="button" class="btn btn-square btn-success"
-                                            title="Increase number of nodes by 1">Increase</button>
+                                        <form action='/UI/decrease' method="POST">
+                                            <button type="submit" name="decrease" title="Decrease number of nodes by 1"
+                                                class="btn btn-square btn-secondary">Decrease</button>
+                                        </form>
+                                        <form action='/UI/increase' method="POST">
+                                            <button type="submit" title="Increase number of nodes by 1" name="increase"
+                                                class="btn btn-square btn-success">Increase</button>
+                                        </form>
 
                                     </div>
+                                    {%if msg%}
+                                    </br>
+                                    <p>Number of active nodes: {{msg}}</p>
+                                    {% endif %}
+
                                 </div>
                             </div>
 
@@ -89,6 +109,7 @@
                         <!-- [ Main Content ] start -->
                         <div class="row">
                             <div class="col-sm-12">
+                                <!-- SAMPLE FORM START-->
                                 <div class="card">
                                     <div class="card-header">
                                         <h5>Automatic Mode</h5>
@@ -97,38 +118,60 @@
 
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <form>
+                                                <form action='/UI/auto' method="POST" enctype="multipart/form-data">
+                                                    <div class="form-group">
+                                                        <label for="Max_miss_threshold">Max_miss_threshold</label>
+                                                        <input type="text" class="form-control" id="Max_miss_threshold"
+                                                            name="Max_miss_threshold"
+                                                            placeholder="Enter the Max miss rate threshold"
+                                                            value={{Max_rate_threshold}}>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="Min_miss_threshold">Min_miss_threshold</label>
+                                                        <input type="text" class="form-control" id="Min_miss_threshold"
+                                                            name="Min_miss_threshold"
+                                                            placeholder="Enter the Min miss rate threshold"
+                                                            value={{Min_rate_threshold}}>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="ratio_expand">ratio_expand</label>
+                                                        <input type="text" class="form-control" id="ratio_expand"
+                                                            name="ratio_expand"
+                                                            placeholder="Enter the ratio by which to exapnd the pool"
+                                                            value={{ratio_exapnd}}>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="ratio_shrink">ratio_shrink</label>
+                                                        <input type="text" class="form-control" id="ratio_shrink"
+                                                            name="ratio_shrink"
+                                                            placeholder="Enter the ratio by which to shrink the pool"
+                                                            value={{ratio_shrink}}>
+                                                    </div>
 
-                                                    <div class="form-group">
-                                                        
-                                                        <input type="password" class="form-control"
-                                                            id="maxrate"
-                                                            placeholder="Max miss rate threshold">
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <input type="password" class="form-control"
-                                                            id="minrate"
-                                                            placeholder="Min miss rate threshold">
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <input type="password" class="form-control"
-                                                            id="ratio_expand"
-                                                            placeholder="Ratio by which to expand the pool">
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <input type="password" class="form-control"
-                                                            id="ratio_shrink"
-                                                            placeholder="Ratio by which to shrink the pool">
-                                                    </div>
-                                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                                    <button type="submit" name="update_parameters"
+                                                        class="btn btn-primary">Update parameters</button>
                                                 </form>
+                                                <!--
+                                                <form action="{{ url_for('photoUpload_blueprint.putPhoto') }}" method="post" enctype="multipart/form-data">
+                                                    <div class="form-group">
+                                                        <label for="key">Key</label>
+                                                        <input type="text" class="form-control" id="key" name="key" placeholder="Enter the key">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="value">Image</label>
+                                                        <input type="file" class="form-control" id="value" name="image" placeholder="Enter the Value">
+                                                    </div>
+                                                    <button type="submit" name="savePhoto" class="btn btn-primary">Upload New Image</button>
+                                                </form>
+                                                
+                                                -->
                                             </div>
-
                                         </div>
-
-
                                     </div>
                                 </div>
+                                <!-- SAMPLE FORM END-->
+
+
                                 <!-- Input group -->
 
                             </div>
