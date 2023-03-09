@@ -17,7 +17,8 @@ from apps import AWS_ACCESS_KEY, AWS_SECRET_KEY, db
 def RedirectIndex():
     ec2 = boto3.client('ec2',
         aws_access_key_id=AWS_ACCESS_KEY,
-        aws_secret_access_key=AWS_SECRET_KEY)
+        aws_secret_access_key=AWS_SECRET_KEY,
+        region_name='us-east-1')
     
     instances = ec2.describe_instances(
         Filters=[

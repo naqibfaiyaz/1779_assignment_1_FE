@@ -46,7 +46,8 @@ def s3_upload(bucket=None, file=None, filename=None):
     print(bucketData, filenameData, fileData)
     s3 = boto3.client('s3',
         aws_access_key_id=AWS_ACCESS_KEY,
-        aws_secret_access_key=AWS_SECRET_KEY)
+        aws_secret_access_key=AWS_SECRET_KEY,
+        region_name='us-east-1')
 
     s3.upload_fileobj(fileData, bucketData, filenameData)
 
@@ -62,7 +63,8 @@ def s3_delete_all(bucket=None, file=None, filename=None):
     
     s3 = boto3.resource('s3',
         aws_access_key_id=AWS_ACCESS_KEY,
-        aws_secret_access_key=AWS_SECRET_KEY)
+        aws_secret_access_key=AWS_SECRET_KEY,
+        region_name='us-east-1')
 
     bucket = s3.Bucket(bucketData)
     # suggested by Jordon Philips 

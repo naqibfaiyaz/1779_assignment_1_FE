@@ -11,7 +11,8 @@ def put_metric_data_cw(namespaceData, data):
     try:
         cloudWatch = boto3.client('cloudwatch',
             aws_access_key_id=AWS_ACCESS_KEY,
-            aws_secret_access_key=AWS_SECRET_KEY)
+            aws_secret_access_key=AWS_SECRET_KEY,
+            region_name='us-east-1')
         
         for metric in data:
             metrics=[
