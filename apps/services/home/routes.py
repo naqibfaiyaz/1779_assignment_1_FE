@@ -5,9 +5,10 @@ Copyright (c) 2019 - present AppSeed.us
 
 from apps.services.home import blueprint
 from flask import render_template, request, json
-from flask_login import login_required
+# from flask_login import login_required
 from jinja2 import TemplateNotFound
 from apps.services.nodePartitions.models import nodePartitions, memcacheNodes
+from apps.services.memcacheManager.routes import changePolicyInDB
 import boto3
 from apps import AWS_ACCESS_KEY, AWS_SECRET_KEY, db
 
@@ -64,6 +65,8 @@ def RedirectIndex():
             ]
         db.session.add_all(newNodePartitions)   
         db.session.commit()
+
+    changePolicyInDB('LRU', 10)
 
     return index()
 

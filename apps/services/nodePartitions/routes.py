@@ -6,9 +6,7 @@ Copyright (c) 2019 - present AppSeed.us
 from apps.services.nodePartitions import blueprint
 from flask import render_template, request, redirect, url_for, Response
 import requests, json
-from jinja2 import TemplateNotFound
 from apps import logger, db
-from apps.services.home.routes import get_segment
 from apps.services.nodePartitions.models import nodePartitions, memcacheNodes
 from sqlalchemy import func
 

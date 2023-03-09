@@ -4,14 +4,11 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from apps.services.memcacheManager import blueprint
-from flask import render_template, request, redirect, url_for, json, Response
+from flask import request, json, Response
 import requests
-from jinja2 import TemplateNotFound
 from apps import logger, policyManagementUrl
-from apps.services.home.routes import get_segment
 from apps.services.cloudWatch.routes import put_metric_data_cw
-from apps.services.nodePartitions.routes import getNodesAll, getPartitionRange, getActiveNodes
-from apps.services.policyManager.routes import refreshConfiguration
+from apps.services.nodePartitions.routes import getPartitionRange, getActiveNodes
 from apps.services.helper import upload_file, removeAllImages
 
 @blueprint.route('/upload',methods=['POST', 'PUT'])
@@ -112,11 +109,11 @@ def deleteAllKeysFromDB():
 
 
 @blueprint.route('/configure_cache',methods=['POST'])
-def changePolicyInDB():
-    policy = request.args.get("policy")
+def changePolicyInDB(policyParam=None, cacheSizeParam=None):
+    policy = policyParam or request.args.get("policy")
     if policy and policy=='RR':
         policy='random'
-    cacheSize = request.args.get("cacheSize")
+    cacheSize = cacheSizeParam or request.args.get("cacheSize")
     mode = request.args.get('mode'), 
     numNodes = request.args.get('numNodes'), 
     expRatio = request.args.get('expRatio'), 
@@ -130,8 +127,7 @@ def changePolicyInDB():
     if policy and cacheSize:
         getNodeForKey = json.loads(getActiveNodes().data)["details"]
         for node in getNodeForKey:
-            print(node['public_ip'])
-            tempData = requests.post('http://' + node['public_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": cacheSize})
+            tempData = requests.post('http://' + node['public_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": cacheSize*1024*1024})
             print(tempData)
     # response = requests.post('http://' + getNodeForKey['private_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": newCapacity})
 
@@ -145,6 +141,7 @@ def getPolicyFromDB(ip):
 @blueprint.route('/getNumNodes', methods=['GET', 'POST'])
 def fetchNumberOfNodes():
     return getActiveNodes()
+
 # @blueprint.route('/api/getMemcacheSize', methods={"GET"})
 # def test_getMemcacheSize():
 #     try:
