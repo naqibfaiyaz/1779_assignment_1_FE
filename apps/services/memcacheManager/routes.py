@@ -81,18 +81,18 @@ def invalidateKeyFromMemcache(url_key):
     
     return response
 
-@blueprint.route('/getAllFromDB',methods=['POST'])
+@blueprint.route('/list_keys',methods=['POST'])
 def getAllPhotosFromDB():
-    getNodeForKey = getPartitionRange("test8")['node_data']
-    
+    getNodeForKey = json.loads(getActiveNodes().data)["details"][0]
+    print(getNodeForKey['private_ip'])
     return requests.post('http://' + getNodeForKey['private_ip'] + ':5001/memcache/api/list_keys').json()
 
 
-@blueprint.route('/delete_all',methods=['GET'])
+@blueprint.route('/delete_all',methods=['GET', 'POST'])
 def deleteAllKeysFromDB():
     removeAllImages()
     getNodeForKey = json.loads(getActiveNodes().data)["details"][0]
-
+    print(getNodeForKey)
     response =json.loads(requests.post('http://' + getNodeForKey['private_ip'] + ':5001/memcache/api/delete_all').content)
 
     return response
