@@ -7,10 +7,11 @@ from apps.services.memcacheManager import blueprint
 from flask import render_template, request, redirect, url_for, json, Response
 import requests
 from jinja2 import TemplateNotFound
-from apps import logger
+from apps import logger, policyManagementUrl
 from apps.services.home.routes import get_segment
 from apps.services.cloudWatch.routes import put_metric_data_cw
 from apps.services.nodePartitions.routes import getNodesAll, getPartitionRange, getActiveNodes
+from apps.services.policyManager.routes import refreshConfiguration
 from apps.services.helper import upload_file, removeAllImages
 
 @blueprint.route('/upload',methods=['POST', 'PUT'])
@@ -110,20 +111,36 @@ def deleteAllKeysFromDB():
     return response
 
 
-@blueprint.route('/changePolicy',methods=['POST'])
-def changePolicyInDB(policy=None, capacity=None):
-    policy = policy or request.form.get("replacement_policy")
-    newCapacity = capacity or int(request.form.get("capacity"))
-    print(policy, newCapacity)
-    getNodeForKey = json.loads(getActiveNodes().data)["details"][0]
-    response = requests.post('http://' + getNodeForKey['private_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": newCapacity})
+@blueprint.route('/configure_cache',methods=['POST'])
+def changePolicyInDB():
+    policy = request.args.get("policy")
+    if policy and policy=='RR':
+        policy='random'
+    cacheSize = request.args.get("cacheSize")
+    mode = request.args.get('mode'), 
+    numNodes = request.args.get('numNodes'), 
+    expRatio = request.args.get('expRatio'), 
+    shrinkRatio = request.args.get('shrinkRatio'), 
+    maxMiss = request.args.get('maxMiss'), 
+    minMiss = request.args.get('minMiss')
+    
+    response = json.loads(requests.post(policyManagementUrl+"/refreshConfig", params={'mode': mode, 'numNodes': numNodes, 'cacheSize': cacheSize, 'policy': policy, 'expRatio': expRatio, 'shrinkRatio': shrinkRatio, 'maxMiss': maxMiss, 'minMiss': minMiss}).content)
 
-    return response
-        
-@blueprint.route('/getCurrentPolicy',methods=['POST'])
-def getPolicyFromDB():
-    getNodeForKey = json.loads(getActiveNodes().data)["details"][0]
-    return requests.get('http://' + getNodeForKey['private_ip'] + ':5001/memcache/api/getConfig').json()
+
+    if policy and cacheSize:
+        getNodeForKey = json.loads(getActiveNodes().data)["details"]
+        for node in getNodeForKey:
+            print(node['public_ip'])
+            tempData = requests.post('http://' + node['public_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": cacheSize})
+            print(tempData)
+    # response = requests.post('http://' + getNodeForKey['private_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": newCapacity})
+
+    return Response(json.dumps(response), status=200, mimetype='application/json')
+        # ?policy=no_cache&mode=manual&numNodes=3
+@blueprint.route('/getCurrentPolicy/<ip>',methods=['POST', 'GET'])
+def getPolicyFromDB(ip):
+    getNodeForKey = ip
+    return requests.get('http://' + getNodeForKey + ':5001/memcache/api/getConfig').json()
 
 @blueprint.route('/getNumNodes', methods=['GET', 'POST'])
 def fetchNumberOfNodes():
