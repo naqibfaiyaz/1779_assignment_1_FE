@@ -22,7 +22,7 @@ def RedirectIndex():
     instances = ec2.describe_instances(
         Filters=[
         {
-            'Name': 'tag:purpose',
+            'Name': 'tag:name',
             'Values': [
                 'memcache_node',
             ]
