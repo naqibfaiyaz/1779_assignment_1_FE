@@ -7,7 +7,7 @@ from apps.services.nodePartitions import blueprint
 from flask import render_template, request, redirect, url_for, Response
 import requests, json
 from jinja2 import TemplateNotFound
-from apps import logger, api_endpoint, db
+from apps import logger, db
 from apps.services.home.routes import get_segment
 from apps.services.nodePartitions.models import nodePartitions, memcacheNodes
 from sqlalchemy import func
@@ -101,13 +101,13 @@ def reassignKeys():
 
     try:
         # get active keys in memcache
-        api_endpoint = getPartitionRange('test')['node_data']['public_ip'] + ':5000'
+        api_endpoint = getPartitionRange('test')['node_data']['public_ip'] + ':5001'
         keys = requests.post(api_endpoint + '/list_keys').json()["content"]
 
         for key in keys:
 
             # get md5 hash for key, determine partition -> instance it will go in
-            api_endpoint = getPartitionRange(key)['node_data']['public_ip'] + ':5000'
+            api_endpoint = getPartitionRange(key)['node_data']['public_ip'] + ':5001'
 
             # put the key in that instance according to replacement policy
             requests.post(api_endpoint + '/key/' + key, data={"key": key}).json()

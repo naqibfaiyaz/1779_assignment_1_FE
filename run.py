@@ -9,7 +9,7 @@ from   flask_minify  import Minify
 from   sys import exit
 
 from apps.config import config_dict
-from apps import create_app, api_endpoint
+from apps import create_app, storageUrl
 
 # WARNING: Don't run with debug turned on in production!
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
@@ -30,7 +30,7 @@ Migrate(app)
 
 if not DEBUG:
     app.logger.info('DEBUG            = ' + str(DEBUG) )
-    app.logger.info('api_endpoint            = ' + str(api_endpoint) )
+    app.logger.info('storageUrl            = ' + str(storageUrl) )
     Minify(app=app, html=True, js=False, cssless=False)
     
 if DEBUG:
@@ -39,7 +39,7 @@ if DEBUG:
     app.logger.info('DBMS             = ' + app_config.SQLALCHEMY_DATABASE_URI)
     app.logger.info('ASSETS_ROOT      = ' + app_config.ASSETS_ROOT )
     app.logger.info('basedir      = ' + app_config.basedir )
-    app.logger.info('api_endpoint            = ' + str(api_endpoint) )
+    app.logger.info('storageUrl            = ' + str(storageUrl) )
 
 if __name__ == "__main__":
     app.run()

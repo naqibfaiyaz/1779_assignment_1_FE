@@ -15,7 +15,7 @@ import logging, doctest
 db = SQLAlchemy()
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
-api_endpoint= os.getenv('IPADDR', 'http://localhost') + ":" + os.getenv('IPPORT', '5000') + '/api'
+storageUrl=os.getenv('storage_url')
 AWS_ACCESS_KEY=os.getenv('aws_access_key_id')
 AWS_SECRET_KEY=os.getenv('aws_secret_access_key')
 # login_manager = LoginManager()
@@ -26,7 +26,7 @@ def register_extensions(app):
 
 
 def register_blueprints(app):
-    for module_name in ('home', 'photoUpload', 'nodePartitions'):
+    for module_name in ('home', 'photoUpload', 'nodePartitions', 'cloudWatch', 'memcacheManager', 's3Manager'):
         module = import_module('apps.services.{}.routes'.format(module_name))
         app.register_blueprint(module.blueprint)
 

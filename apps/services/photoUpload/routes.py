@@ -7,8 +7,9 @@ from apps.services.photoUpload import blueprint
 from flask import render_template, request, redirect, url_for
 import requests
 from jinja2 import TemplateNotFound
-from apps import logger, api_endpoint
+from apps import logger
 from apps.services.home.routes import get_segment
+from apps.services.memcacheManager.routes import getSinglePhotoFromMemcache, getAllPhotosFromCache, invalidateKeyFromMemcache, deleteAllKeysFromDB, getAllPhotosFromDB, putPhotoInMemcache, getPolicyFromDB, changePolicyInDB
 
 @blueprint.route('/index')
 # @login_required
@@ -48,15 +49,17 @@ def route_template(template):
 def putPhoto():
     # UPLOAD_FOLDER = apps.app_c'/static/assets/public/'
     # ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
-    if request.form.get('key') and request.files['image']:
-        response = requests.post(api_endpoint + '/upload', files={"file": request.files['image']}, data={"key": request.form.get('key')}).json()
+    key = request.form.get('key') 
+    file = request.files['image']
+    print(key, file)
+    if key and file:
+        response = putPhotoInMemcache(key, file)
         
         logger.info('Put request received- ' + str(response))
 
         return render_template("photoUpload/addPhoto.html", msg=response["msg"])
-    elif request.form.get('key'):
-        key = request.form.get('key')
-        cacheData = requests.post(api_endpoint + '/key/' + key, data={"key": key}).json()
+    elif key:
+        cacheData = getSinglePhotoFromMemcache(key)
         if "content" in cacheData:
             return render_template("photoUpload/addPhoto.html", msg="Key exists, please upload a new image", data=cacheData["content"], key=key)
         elif key not in cacheData and "error" in cacheData:
@@ -70,7 +73,8 @@ def putPhoto():
 def getSinglePhoto(url_key):
     key = url_key or request.form.get('key')
     logger.info(request.form)
-    cacheData = requests.post(api_endpoint + '/key/' + key, data={"key": key}).json()
+    cacheData=getSinglePhotoFromMemcache(key)
+
     logger.info('Get request received for single key- ' + key, str(cacheData))
     logger.info(cacheData)
     logger.info(request.method)
@@ -81,25 +85,25 @@ def getSinglePhoto(url_key):
 
 @blueprint.route('/getAllCache',methods=['POST'])
 def getAllPhotos():
-    return requests.post(api_endpoint + '/list_cache').json()["content"]
+    return getAllPhotosFromCache()["content"]
 
 @blueprint.route('/invalidate_key/<url_key>',methods=['GET', 'POST'])
 def invalidateKey(url_key) :
-    response = requests.post(api_endpoint + '/invalidate/' + url_key, data={"key": url_key})
+    response = invalidateKeyFromMemcache(url_key)
     logger.info("invalidateKey response: " + str(response))
     
     return redirect(url_for("photoUpload_blueprint.route_template", template="photos.html"))
 
 @blueprint.route('/getAllFromDB',methods=['POST'])
 def getDBAllPhotos():
-    return requests.post(api_endpoint + '/list_keys').json()["content"]
+    return getAllPhotosFromDB()["content"]
 
 
 @blueprint.route('/deleteAllKeys',methods=['GET'])
 def deleteAllKeys():
-    resposne = requests.post(api_endpoint + '/delete_all').json()
+    response = deleteAllKeysFromDB()
 
-    if 'success' in resposne and resposne['success']=='true':
+    if 'success' in response and response['success']=='true':
         return redirect(url_for("photoUpload_blueprint.route_template", template="knownKeys.html", msg="All Keys are deleted"))
 
 
@@ -107,12 +111,12 @@ def deleteAllKeys():
 def changePolicy():
     policy = request.form.get("replacement_policy")
     newCapacity = int(request.form.get("capacity"))
-    print(policy, newCapacity)
-    resposne = requests.post(api_endpoint + '/refreshConfig', data={"replacement_policy": policy,"capacity": newCapacity*1024*1024}).json()
+    
+    response = changePolicyInDB(policy, newCapacity*1024*1024).json()
 
-    if 'success' in resposne and resposne['success']=='true':
+    if 'success' in response and response['success']=='true':
         return redirect(url_for("photoUpload_blueprint.route_template", template="cache.html"))
         
 @blueprint.route('/getCurrentPolicy',methods=['POST'])
 def getPolicy():
-    return requests.get(api_endpoint + '/getConfig').json()['content']
+    return getPolicyFromDB()['content']
