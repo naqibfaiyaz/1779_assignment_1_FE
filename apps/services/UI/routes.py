@@ -11,7 +11,7 @@ from jinja2 import TemplateNotFound
 from apps import logger, api_endpoint
 from apps.services.home.routes import get_segment
 from apps.services.nodePartitions.models import nodePartitions, memcacheNodes
-from nodePartitions.routes import reassignPartitions
+from apps.services.nodePartitions.routes import reassignPartitions
 
 nodes = 1
 curr_mode='Manual'
