@@ -46,10 +46,12 @@ def refreshConfiguration():
                 db.session.add(newPolicy)  
             db.session.commit()
 
-    
-    response = db.session.query(policyConfig).all()
-    updatedPolicy=[i.serialize for i in response]
+    return getConfigAll()
 
+
+@blueprint.route('/getCurrentConfig', methods=["POST"])
+def getConfigAll():
+    response=db.session.query(policyConfig).all()
+    updatedPolicy=[i.serialize for i in response]
     print(updatedPolicy)
     return Response(json.dumps(updatedPolicy), status=200, mimetype='application/json')
-        
