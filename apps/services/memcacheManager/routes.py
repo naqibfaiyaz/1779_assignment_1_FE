@@ -23,7 +23,7 @@ def putPhotoInMemcache(url_key=None, file=None):
         getNodeForKey = getPartitionRange(key)['node_data']
         print(getNodeForKey)
         image_path = upload_file(fileData)
-        response = requests.post('http://' + getNodeForKey['private_ip'] + ':5001/memcache/api/upload', data={"key": key, "image_path": image_path}).json()
+        response = requests.post('http://' + getNodeForKey['public_ip'] + ':5001/memcache/api/upload', data={"key": key, "image_path": image_path}).json()
         
         logger.info('Put request received- ' + str(response))
 
@@ -45,7 +45,7 @@ def getSinglePhotoFromMemcache(url_key):
     key = url_key or request.form.get('key')
     getNodeForKey = getPartitionRange(key)['node_data']
 
-    cacheData = requests.post('http://' + getNodeForKey['private_ip'] + ':5001/memcache/api/key/' + key, data={"key": key}).json()
+    cacheData = requests.post('http://' + getNodeForKey['public_ip'] + ':5001/memcache/api/key/' + key, data={"key": key}).json()
 
     cacheStates=[{
             'metricName': 'cache_response',
@@ -68,8 +68,8 @@ def getAllPhotosFromCache():
     allCache={'content':{},'keys':[], 'success': None}
 
     for node in getNodeForKey:
-        allCacheFromNode= requests.post("http://" + node['private_ip'] + ':5001/memcache/api/list_cache').json()
-        print(node['Instance_id'], node['private_ip'])
+        allCacheFromNode= requests.post("http://" + node['public_ip'] + ':5001/memcache/api/list_cache').json()
+        print(node['Instance_id'], node['public_ip'])
         print(allCacheFromNode['content'])
         for keys in allCacheFromNode['content']:
             if keys!='key':
@@ -86,7 +86,7 @@ def getAllPhotosFromCache():
 @blueprint.route('/invalidate_key/<url_key>',methods=['GET', 'POST'])
 def invalidateKeyFromMemcache(url_key):
     getNodeForKey = getPartitionRange(url_key)['node_data']
-    response = requests.post('http://' + getNodeForKey['private_ip'] + ':5001/memcache/api/invalidate/' + url_key, data={"key": url_key})
+    response = requests.post('http://' + getNodeForKey['public_ip'] + ':5001/memcache/api/invalidate/' + url_key, data={"key": url_key})
     logger.info("invalidateKey response: " + str(response))
     
     return response
@@ -94,8 +94,8 @@ def invalidateKeyFromMemcache(url_key):
 @blueprint.route('/list_keys',methods=['POST'])
 def getAllPhotosFromDB():
     getNodeForKey = json.loads(getActiveNodes().data)["details"][0]
-    print(getNodeForKey['private_ip'])
-    return requests.post('http://' + getNodeForKey['private_ip'] + ':5001/memcache/api/list_keys').json()
+    print(getNodeForKey['public_ip'])
+    return requests.post('http://' + getNodeForKey['public_ip'] + ':5001/memcache/api/list_keys').json()
 
 
 @blueprint.route('/delete_all',methods=['GET', 'POST'])
@@ -103,7 +103,7 @@ def deleteAllKeysFromDB():
     removeAllImages()
     getNodeForKey = json.loads(getActiveNodes().data)["details"][0]
     print(getNodeForKey)
-    response =json.loads(requests.post('http://' + getNodeForKey['private_ip'] + ':5001/memcache/api/delete_all').content)
+    response =json.loads(requests.post('http://' + getNodeForKey['public_ip'] + ':5001/memcache/api/delete_all').content)
 
     return response
 
@@ -121,7 +121,7 @@ def changePolicyInDB(policyParam=None, cacheSizeParam=None):
     maxMiss = request.args.get('maxMiss'), 
     minMiss = request.args.get('minMiss')
     
-    response = json.loads(requests.post(policyManagementUrl+"/refreshConfig", params={'mode': mode, 'numNodes': numNodes, 'cacheSize': cacheSize, 'policy': policy, 'expRatio': expRatio, 'shrinkRatio': shrinkRatio, 'maxMiss': maxMiss, 'minMiss': minMiss}).content)
+    response = requests.post(policyManagementUrl+"/refreshConfig", params={'mode': mode, 'numNodes': numNodes, 'cacheSize': cacheSize, 'policy': policy, 'expRatio': expRatio, 'shrinkRatio': shrinkRatio, 'maxMiss': maxMiss, 'minMiss': minMiss}).content
 
 
     if policy and cacheSize:
@@ -130,11 +130,11 @@ def changePolicyInDB(policyParam=None, cacheSizeParam=None):
         print(getNodeForKey)
         for node in getNodeForKey:
             print(node)
-            tempData = requests.post('http://' + node['private_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": cacheSize*1024*1024})
+            tempData = requests.post('http://' + node['public_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": cacheSize*1024*1024})
             print(tempData)
-    # response = requests.post('http://' + getNodeForKey['private_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": newCapacity})
+    # response = requests.post('http://' + getNodeForKey['public_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": newCapacity})
 
-    return Response(json.dumps(response), status=200, mimetype='application/json')
+    return Response(json.dumps(json.loads(response)), status=200, mimetype='application/json')
         # ?policy=no_cache&mode=manual&numNodes=3
 @blueprint.route('/getCurrentPolicy/<ip>',methods=['POST', 'GET'])
 def getPolicyFromDB(ip):
