@@ -67,11 +67,20 @@ def getSinglePhotoFromMemcache(url_key):
 def getAllPhotosFromCache():
     getNodeForKey = json.loads(getActiveNodes().data)["details"]
 
+    allCache={'content':{},'keys':[], 'success': None}
+
     for node in getNodeForKey:
-        allCacheFromNode= requests.post("http://" + node['private_ip'] + ':5001/memcache/api/list_cache').json()
-        
+        allCacheFromNode= requests.post("http://" + node['public_ip'] + ':5001/memcache/api/list_cache').json()
+        print(allCacheFromNode['content'])
+        for keys in allCacheFromNode['content']:
+            if keys!='key':
+                allCache['content'][keys]=allCacheFromNode['content'][keys]
+    allCache['keys']=list(allCache['content'].keys())
+    allCache['success']='true'
+    
+    print(allCache)
         # need to accumulate all the cache
-    return allCacheFromNode
+    return allCache
 
 @blueprint.route('/invalidate_key/<url_key>',methods=['GET', 'POST'])
 def invalidateKeyFromMemcache(url_key):
