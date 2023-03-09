@@ -4,11 +4,11 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 
-from apps.services.UI import blueprint
+from apps.services.appManager import blueprint
 from flask import render_template, request, redirect, url_for
 import requests
 from jinja2 import TemplateNotFound
-from apps import logger, api_endpoint
+from apps import logger
 from apps.services.home.routes import get_segment
 from apps.services.nodePartitions.models import nodePartitions, memcacheNodes
 from apps.services.nodePartitions.routes import reassignPartitions
@@ -39,22 +39,17 @@ def route_template(template):
         logger.error(str(e))
         return render_template('home/page-500.html'), 500
 
-@blueprint.route('/getCurrentPolicy', methods=['POST'])
-def getPolicy():
-    return requests.get(api_endpoint + '/getConfig').json()['content']
-
-
 @blueprint.route('/show_stats')
 def show_stats():
-    render_template('home/index_.html', segment='index')
+    return render_template('home/index_.html', segment='index')
 
 @blueprint.route('/delete_all')
 def delete_all():
-    render_template('home/index_.html', segment='index')
+    return render_template('home/index_.html', segment='index')
 
 @blueprint.route('/clear_cache')
 def clear_cache():
-    render_template('home/index_.html', segment='index')
+    return render_template('home/index_.html', segment='index')
 
 
 
@@ -71,7 +66,7 @@ def increase():
         reassignPartitions()
 
 
-    render_template('home/index_.html', segment='index',msg=msg)
+    return render_template('home/index_.html', segment='index',msg=msg)
 
 
 @blueprint.route('/decrease', methods=['POST', 'PUT'])
@@ -87,19 +82,17 @@ def decrease():
         reassignPartitions()
 
 
-    render_template('home/index_.html', segment='index',msg=msg)
+    return render_template('home/index_.html', segment='index',msg=msg)
 
 
-@blueprint.route('/automatic', method=['POST', 'PUT'])
-def set_auto_mode():
+@blueprint.route('/automatic', methods=['POST', 'PUT'])
+def autoModeMemcache():
     curr_mode='Automatic'
     if request.form.get('Max_miss_threshold') and request.form.get('Min_miss_threshold') and request.form.get('ratio_shirnk') and request.form.get('ratio_expand'):
         return render_template('home/index_.html', segment='index',curr_mode=curr_mode)
     
 
-@blueprint.route('/manual' , method=['POST', 'PUT'])
+@blueprint.route('/manual' , methods=['POST', 'PUT'])
 def set_manual_mode():
     curr_mode='Manual'
     return render_template('home/index_.html', segment='index',curr_mode=curr_mode)
-
-
