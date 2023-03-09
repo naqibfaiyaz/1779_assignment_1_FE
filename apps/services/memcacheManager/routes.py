@@ -125,6 +125,9 @@ def getPolicyFromDB():
     getNodeForKey = json.loads(getActiveNodes().data)["details"][0]
     return requests.get('http://' + getNodeForKey['private_ip'] + ':5001/memcache/api/getConfig').json()
 
+@blueprint.route('/getNumNodes', methods=['GET', 'POST'])
+def fetchNumberOfNodes():
+    return getActiveNodes()
 # @blueprint.route('/api/getMemcacheSize', methods={"GET"})
 # def test_getMemcacheSize():
 #     try:
