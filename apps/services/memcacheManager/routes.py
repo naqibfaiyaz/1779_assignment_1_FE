@@ -127,7 +127,7 @@ def changePolicyInDB(policyParam=None, cacheSizeParam=None):
     if policy and cacheSize:
         getNodeForKey = json.loads(getActiveNodes().data)["details"]
         for node in getNodeForKey:
-            tempData = requests.post('http://' + node['public_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": cacheSize*1024*1024})
+            tempData = requests.post('http://' + node['private_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": cacheSize*1024*1024})
             print(tempData)
     # response = requests.post('http://' + getNodeForKey['private_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": newCapacity})
 
