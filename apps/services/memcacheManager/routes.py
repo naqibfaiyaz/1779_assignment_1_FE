@@ -70,15 +70,19 @@ def getAllPhotosFromCache():
     allCache={'content':{},'keys':[], 'success': None}
 
     for node in getNodeForKey:
-        allCacheFromNode= requests.post("http://" + node['public_ip'] + ':5001/memcache/api/list_cache').json()
+        allCacheFromNode= requests.post("http://" + node['private_ip'] + ':5001/memcache/api/list_cache').json()
+        print(node['Instance_id'], node['private_ip'])
         print(allCacheFromNode['content'])
         for keys in allCacheFromNode['content']:
             if keys!='key':
                 allCache['content'][keys]=allCacheFromNode['content'][keys]
     allCache['keys']=list(allCache['content'].keys())
     allCache['success']='true'
+        # print(allCacheFromNode['content'])
     
+        # print(allCacheFromNode)
     print(allCache)
+        # need to accumulate all the cache
     return allCache
 
 @blueprint.route('/invalidate_key/<url_key>',methods=['GET', 'POST'])
