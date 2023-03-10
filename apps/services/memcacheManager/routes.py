@@ -276,10 +276,90 @@ def test_getMemcacheSize():
                 }
             }), status=400, mimetype='application/json')
 
+@blueprint.route('/getHitMissInfoFromCW', methods=["GET", "POST"])
+def getresponseInfoFromCW():
+    getHitCount=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'hit', 'Sum', 60, 24*3600)['Datapoints']
+    getMissCount=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'miss', 'Sum', 60, 24*3600)['Datapoints']
+
+    getRequestCount = get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'hit', 'Sum', 60, 24*3600)['Datapoints']
+    getHitRate = []
+    getMissRate = []
+    hitLength=len(getRequestCount)
+    timestampForHits=[x['Timestamp'] for x in getRequestCount if 'Timestamp' in x.keys()]
+    timestampForMiss=[x['Timestamp'] for x in getMissCount if 'Timestamp' in x.keys()]
+    print(timestampForHits)
+    # while i< hitLength:
+    for hit in getHitCount:
+        if hit['Timestamp'] not in timestampForMiss:
+
+            getMissCount.append({
+                "Sum": 0,
+                "Timestamp": hit['Timestamp'],
+                "Unit": "Count"
+            })
+
+    for miss in getMissCount:
+        print(miss['Timestamp'])
+        if miss['Timestamp'] not in timestampForHits:
+            print('Appending')
+            print(miss['Timestamp'])
+            print(miss['Sum'])
+            getRequestCount.append({
+                "Sum": miss['Sum'],
+                "Timestamp": miss['Timestamp'],
+                "Unit": "Count"
+            })
+
+            getHitCount.append({
+                "Sum": 0,
+                "Timestamp": miss['Timestamp'],
+                "Unit": "Count"
+            })
+        else:
+            i=0
+            while i< hitLength:
+            # for i, hit in enumerate(getMissCount):
+                print("i", i)
+                print(miss['Timestamp'])
+                print(getRequestCount[i]['Timestamp'])
+                print("checking starts")
+                if miss['Timestamp']==getRequestCount[i]['Timestamp']:
+                    print('Summing')
+                    print(getRequestCount[i]['Timestamp'])
+                    print(getRequestCount[i]['Sum'])
+                    print(miss['Sum'])
+                    getRequestCount[i] ={
+                        "Sum": getRequestCount[i]['Sum']+miss['Sum'],
+                        "Timestamp": getRequestCount[i]['Timestamp'],
+                        "Unit": "Count"
+                    }
+                    break
+                i=i+1
+
+    for request in getRequestCount:
+        for hit in getHitCount:
+            if request['Timestamp']==hit['Timestamp']:
+                getHitRate.append({
+                    "Sum": hit['Sum']/request['Sum'],
+                    "Timestamp": request['Timestamp'],
+                    "Unit": "Count"
+                })
+    
+    for request in getRequestCount:
+        for miss in getMissCount:
+            if request['Timestamp']==miss['Timestamp']:
+                getMissRate.append({
+                    "Sum": miss['Sum']/request['Sum'],
+                    "Timestamp": request['Timestamp'],
+                    "Unit": "Count"
+                })
+
+    return {"hit": getHitCount, "miss":  getMissCount, "total": getRequestCount, "hitRate": getHitRate, "missRate": getMissRate}
+
 @blueprint.route('/getMemcacheInfoFromCW', methods=["GET", "POST"])
 def getCacheInfoFromCW():
-    getCacheKeysCount=get_metric_data_cw('cache_states3', 'cache_info', 'items_size', 'number_of_items', 'Average', 60, 1800)['Datapoints']
-    getCacheSizeMb=get_metric_data_cw('cache_states3', 'cache_info', 'items_size', 'total_cache_size', 'Average', 60, 1800)['Datapoints']
+    getCacheKeysCount=get_metric_data_cw('cache_states3', 'cache_info', 'items_size', 'number_of_items', 'Average', 60, 24*3600)['Datapoints']
+    getCacheSizeMb=get_metric_data_cw('cache_states3', 'cache_info', 'items_size', 'total_cache_size', 'Average', 60, 24*3600)['Datapoints']
 
     return {"count": getCacheKeysCount, "size":  getCacheSizeMb}
 
