@@ -68,10 +68,14 @@ def getConfigAll():
             }
 
     for policy in updatedPolicy:
-        if policy['policy_name']=='numNodes' or policy['policy_name']=='cacheSize':
+        if policy['policy_name']=='numNodes':
             response[policy['policy_name']] = int(policy['value'])
         elif policy['policy_name']=='maxMiss' or policy['policy_name']=='minMiss':
             response[policy['policy_name']] = float(policy['value'])
+        elif policy['policy_name']=='policy' or policy['value']=='random':
+            response[policy['policy_name']] = 'RR'
+        elif policy['policy_name']=='cacheSize':
+            response[policy['policy_name']] = int(int(policy['value'])/1024/1024)
         else:
             response[policy['policy_name']] = policy['value']
 
