@@ -30,16 +30,16 @@
                                         <h5>Tasks</h5>
                                     </div>
                                     <div class="card-block">
-                                        <form action='/UI/show_stats'>
+                                        <form action='/appManager/show_stats'>
                                             <button type="submit" name="show_stats" title="Show Statistics"
                                                 class="btn btn-primary">Show charts</button>
                                         </form>
-                                        <form action='/UI/delete_all'>
+                                        <form action='/appManager/delete_all'>
                                             <button type="submit" name="delete_all"
                                                 title="clear data of RDS, S3 and memcache" class="btn btn-danger">Delete
                                                 All</button>
                                         </form>
-                                        <form action='/UI/clear_cache'>
+                                        <form action='/appManager/clear_cache'>
                                             <button type="submit" name="clear_memcache"
                                                 title="clear data of memcache nodes" class="btn btn-warning">Clear
                                                 Cache</button>
@@ -60,11 +60,11 @@
                                         <h5>Select Mode</h5>
                                     </div>
                                     <div class="card-block">
-                                        <form action='/UI/manual' method="POST">
+                                        <form action='/appManager/manual' method="POST">
                                             <button type="submit" name="manual" title='Click to select Manual mode'
                                                 class="btn btn-light">Manual</button>
                                         </form>
-                                        <form action='/UI/auto' method="POST">
+                                        <form action='/appManager/auto' method="POST">
                                             <button type="submit" title='Click to select Automatic mode' name="auto"
                                                 class="btn btn-dark">Automatic</button>
                                         </form>
@@ -82,11 +82,11 @@
                                         <h5>Manual Mode</h5>
                                     </div>
                                     <div class="card-block">
-                                        <form action='/UI/decrease' method="POST">
+                                        <form action='/appManager/decrease' method="POST">
                                             <button type="submit" name="decrease" title="Decrease number of nodes by 1"
                                                 class="btn btn-square btn-secondary">Decrease</button>
                                         </form>
-                                        <form action='/UI/increase' method="POST">
+                                        <form action='/appManager/increase' method="POST">
                                             <button type="submit" title="Increase number of nodes by 1" name="increase"
                                                 class="btn btn-square btn-success">Increase</button>
                                         </form>
@@ -118,7 +118,7 @@
 
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <form action='/UI/auto' method="POST" enctype="multipart/form-data">
+                                                <form action='/appManager/auto' method="POST" enctype="multipart/form-data">
                                                     <div class="form-group">
                                                         <label for="Max_miss_threshold">Max_miss_threshold</label>
                                                         <input type="text" class="form-control" id="Max_miss_threshold"
