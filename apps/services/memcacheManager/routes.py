@@ -11,6 +11,7 @@ from apps.services.cloudWatch.routes import put_metric_data_cw, get_metric_data_
 from apps.services.nodePartitions.routes import getPartitionRange, getActiveNodes
 from apps.services.helper import upload_file, removeAllImages
 
+# Upload keys from caches from all the nodes
 @blueprint.route('/upload',methods=['POST', 'PUT'])
 def putPhotoInMemcache(url_key=None, file=None):
     test_getMemcacheSize()
@@ -40,7 +41,7 @@ def putPhotoInMemcache(url_key=None, file=None):
             return {"Key/Image mismatch, please upload properly"}
     
 
-# @blueprint.route('/get', defaults={'url_key': None}, methods=['POST'])
+# Get keys from caches from all the nodes
 @blueprint.route('/key/<url_key>',methods=['GET', 'POST'])
 def getSinglePhotoFromMemcache(url_key):
     test_getMemcacheSize()
@@ -63,6 +64,7 @@ def getSinglePhotoFromMemcache(url_key):
     elif "content" not in cacheData and "error" in cacheData:
         return cacheData
 
+# list all caches from all the nodes
 @blueprint.route('/list_cache',methods=['POST'])
 def getAllPhotosFromCache():
     test_getMemcacheSize()
@@ -95,6 +97,7 @@ def invalidateKeyFromMemcache(url_key):
     
     return response
 
+# list all the keys from database
 @blueprint.route('/list_keys',methods=['POST'])
 def getAllPhotosFromDB():
     test_getMemcacheSize()
@@ -102,7 +105,7 @@ def getAllPhotosFromDB():
     print(getNodeForKey['public_ip'])
     return requests.post('http://' + getNodeForKey['public_ip'] + ':5001/memcache/api/list_keys').json()
 
-
+# delete everything from database
 @blueprint.route('/delete_all',methods=['GET', 'POST'])
 def deleteAllKeysFromDB():
     test_getMemcacheSize()
@@ -113,7 +116,7 @@ def deleteAllKeysFromDB():
     test_getMemcacheSize()
     return response
 
-
+# configure cache in the database
 @blueprint.route('/configure_cache',methods=['POST'])
 def changePolicyInDB(policyParam=None, cacheSizeParam=None):
     test_getMemcacheSize()
@@ -153,15 +156,16 @@ def getPolicyFromDB(ip):
 def fetchNumberOfNodes():
     return getActiveNodes()
 
+# get miss rate with http://127.0.0.1:5000/api/getRate?rate=miss 
 @blueprint.route('/getRate', methods=['GET', 'POST'])
 def getRateForRequests():
     rateType = request.args.get('rate')
-    getHit=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'hit', 'Sum')['Datapoints']
-    getMiss=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'miss', 'Sum')['Datapoints']
+    getHit=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'hit', 'Sum', 60, 60)['Datapoints']
+    getMiss=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'miss', 'Sum', 60, 60)['Datapoints']
     totalHit=0
     totalMiss=0
     if getHit:
-        for hitCount in getMiss:
+        for hitCount in getHit:
             totalHit = totalHit + int(hitCount['Sum'])
     else: 
         totalHit=0
@@ -274,12 +278,12 @@ def test_getMemcacheSize():
 
 @blueprint.route('/getMemcacheInfoFromCW', methods=["GET", "POST"])
 def getCacheInfoFromCW():
-    getCacheKeysCount=get_metric_data_cw('cache_states3', 'cache_info', 'items_size', 'number_of_items', 'Average')['Datapoints']
-    getCacheSizeMb=get_metric_data_cw('cache_states3', 'cache_info', 'items_size', 'total_cache_size', 'Average')['Datapoints']
+    getCacheKeysCount=get_metric_data_cw('cache_states3', 'cache_info', 'items_size', 'number_of_items', 'Average', 60, 1800)['Datapoints']
+    getCacheSizeMb=get_metric_data_cw('cache_states3', 'cache_info', 'items_size', 'total_cache_size', 'Average', 60, 1800)['Datapoints']
 
     return {"count": getCacheKeysCount, "size":  getCacheSizeMb}
 
-
+# clear all caches in nodes
 @blueprint.route('/clearCache', methods=["GET", "POST"])
 def clearCacheFromMemcaches():
     getNodeForKey = json.loads(getActiveNodes().data)["details"]
