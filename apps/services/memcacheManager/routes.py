@@ -7,7 +7,7 @@ from apps.services.memcacheManager import blueprint
 from flask import request, json, Response
 import requests
 from apps import logger, policyManagementUrl
-from apps.services.cloudWatch.routes import put_metric_data_cw
+from apps.services.cloudWatch.routes import put_metric_data_cw, get_metric_data_cw
 from apps.services.nodePartitions.routes import getPartitionRange, getActiveNodes
 from apps.services.helper import upload_file, removeAllImages
 
@@ -145,6 +145,32 @@ def getPolicyFromDB(ip):
 @blueprint.route('/getNumNodes', methods=['GET', 'POST'])
 def fetchNumberOfNodes():
     return getActiveNodes()
+
+@blueprint.route('/getRate', methods=['GET', 'POST'])
+def getRateForRequests():
+    rateType = request.args.get('rate')
+    print(rateType)
+    totalHit = int(get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'hit')['Datapoints'][0]['Sum'])
+    totalMiss = int(get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'miss')['Datapoints'][0]['Sum'])
+
+    if rateType=='miss':
+        rate = totalMiss/(totalHit+totalMiss)
+        response = {
+            "success": "true",
+            "rate": rateType,
+            "value": rate
+        }
+    elif rateType=='hit':
+        rate = totalHit/(totalHit+totalMiss)
+        response = {
+            "success": "true",
+            "rate": rateType,
+            "value": rate
+        }
+    else: 
+        return Response(json.dumps("rate type is missing"), status=400, mimetype='application/json')
+
+    return Response(json.dumps(response), status=200, mimetype='application/json')
 
 # @blueprint.route('/api/getMemcacheSize', methods={"GET"})
 # def test_getMemcacheSize():

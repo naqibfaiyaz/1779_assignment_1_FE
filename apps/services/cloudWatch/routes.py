@@ -49,7 +49,7 @@ def put_metric_data_cw(namespaceData, data):
 
 @blueprint.route('/get',methods=['GET'])
 # Display an HTML list of all s3 buckets.
-def get_metric_data_cw():
+def get_metric_data_cw(namespace, metricName, dimensions, value):
     # Let's use Amazon S3
     try:
         cloudWatch = boto3.client('cloudwatch',
@@ -62,10 +62,10 @@ def get_metric_data_cw():
             Period=1 * 60,
             StartTime=datetime.datetime.utcnow() - datetime.timedelta(seconds=60 * 60),
             EndTime=datetime.datetime.utcnow() - datetime.timedelta(seconds=0 * 60),
-            MetricName='cache_response',
-            Namespace='cache_response2',  # Unit='Percent',
-            Statistics=['sum'],
-            Dimensions=[{'Name': 'InstanceId', 'Value': id}])
+            MetricName=metricName,
+            Namespace=namespace,  # Unit='Percent',
+            Statistics=['Sum'],
+            Dimensions=[{'Name': dimensions, 'Value': value}])
     except Exception as e:
         print("Error from test_getMemcacheSize: " + str(e))
         return {
