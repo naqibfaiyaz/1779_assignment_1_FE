@@ -51,7 +51,23 @@ def refreshConfiguration():
 
 @blueprint.route('/getCurrentConfig', methods=["POST"])
 def getConfigAll():
-    response=db.session.query(policyConfig).all()
-    updatedPolicy=[i.serialize for i in response]
-    print(updatedPolicy)
-    return Response(json.dumps(updatedPolicy), status=200, mimetype='application/json')
+    currentPolicy=db.session.query(policyConfig).all()
+    updatedPolicy=[i.serialize for i in currentPolicy]
+    
+    if updatedPolicy:
+        response = {
+                "success": 'true',
+                "policy": None,
+                "cacheSize": None,
+                "mode": None, 
+                "numNodes":  None, 
+                "expRatio": None, 
+                "shrinkRatio": None, 
+                "maxMiss":  None, 
+                "minMiss": None
+            }
+
+    for policy in updatedPolicy:
+        response[policy['policy_name']] = policy['value']
+
+    return Response(json.dumps(response), status=200, mimetype='application/json')
