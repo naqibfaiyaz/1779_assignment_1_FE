@@ -34,6 +34,7 @@ def put_metric_data_cw(namespaceData, data):
                 Namespace=namespaceData,
                 MetricData=metrics
             )
+            print(response)
     except Exception as e:
         print("Error from test_getMemcacheSize: " + str(e))
         return {
@@ -49,7 +50,7 @@ def put_metric_data_cw(namespaceData, data):
 
 @blueprint.route('/get',methods=['GET'])
 # Display an HTML list of all s3 buckets.
-def get_metric_data_cw(namespace, metricName, dimensions, value):
+def get_metric_data_cw(namespace, metricName, dimensions, value, aggregation):
     # Let's use Amazon S3
     try:
         cloudWatch = boto3.client('cloudwatch',
@@ -57,6 +58,7 @@ def get_metric_data_cw(namespace, metricName, dimensions, value):
             aws_secret_access_key=AWS_SECRET_KEY,
             region_name='us-east-1')
 
+        print(datetime.datetime.utcnow() - datetime.timedelta(seconds=1 * 60),datetime.datetime.utcnow() - datetime.timedelta(seconds=0 * 60))
         # Print out bucket names
         response = cloudWatch.get_metric_statistics(
             Period=1 * 60,
@@ -64,7 +66,7 @@ def get_metric_data_cw(namespace, metricName, dimensions, value):
             EndTime=datetime.datetime.utcnow() - datetime.timedelta(seconds=0 * 60),
             MetricName=metricName,
             Namespace=namespace,  # Unit='Percent',
-            Statistics=['Sum'],
+            Statistics=[aggregation],
             Dimensions=[{'Name': dimensions, 'Value': value}])
         print(response)
     except Exception as e:

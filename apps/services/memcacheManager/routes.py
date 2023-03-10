@@ -149,14 +149,18 @@ def fetchNumberOfNodes():
 @blueprint.route('/getRate', methods=['GET', 'POST'])
 def getRateForRequests():
     rateType = request.args.get('rate')
-    getHit=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'hit')['Datapoints']
-    getMiss=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'miss')['Datapoints']
+    getHit=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'hit', 'Sum')['Datapoints']
+    getMiss=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'miss', 'Sum')['Datapoints']
+    totalHit=0
+    totalMiss=0
     if getHit:
-        totalHit = int(getHit[0]['Sum'])
+        for hitCount in getMiss:
+            totalHit = totalHit + int(hitCount['Sum'])
     else: 
         totalHit=0
     if getMiss:
-        totalMiss = int(getMiss[0]['Sum'])
+        for missCount in getMiss:
+            totalMiss = totalMiss + int(missCount['Sum'])
     else: 
         totalMiss=0
     
@@ -168,14 +172,19 @@ def getRateForRequests():
             response = {
                 "success": "true",
                 "rate": rateType,
-                "value": rate
+                "value": rate,
+                "hit": totalHit,
+                "miss": totalMiss,
+
             }
         else:
             rate = 0
             response = {
                 "success": "true",
                 "rate": rateType,
-                "value": rate
+                "value": rate,
+                "hit": totalHit,
+                "miss": totalMiss,
             }
     elif rateType=='hit':
         if totalResponse>0:
@@ -183,54 +192,107 @@ def getRateForRequests():
             response = {
                 "success": "true",
                 "rate": rateType,
-                "value": rate
+                "value": rate,
+                "hit": totalHit,
+                "miss": totalMiss,
             }
         else:
             rate = 0
             response = {
                 "success": "true",
                 "rate": rateType,
-                "value": rate
+                "value": rate,
+                "hit": totalHit,
+                "miss": totalMiss,
             }
     else: 
         return Response(json.dumps("rate type is missing"), status=400, mimetype='application/json')
 
     return Response(json.dumps(response), status=200, mimetype='application/json')
 
-# @blueprint.route('/api/getMemcacheSize', methods={"GET"})
-# def test_getMemcacheSize():
-#     try:
-#         cacheStates=[{
-#             'metricName': 'number_of_items',
-#             'dimensionName': 'number_of_items',
-#             'dimensionValue': 'cacheItems',
-#             'value': len(memcache),
-#             'unit': 'Count',
-#         },{
-#             'metricName': 'total_cache_size',
-#             'dimensionName': 'total_cache_size',
-#             'dimensionValue': 'cacheSize',
-#             'value': asizeof.asizeof(memcache)/1024,
-#             'unit': 'Kilobytes',
-#         }]
+@blueprint.route('/getMemcacheSize', methods=["GET", "POST"])
+def test_getMemcacheSize():
+    getNodeForKey = json.loads(getActiveNodes().data)["details"]
 
-#         print(cacheStates[0])
-#         response = put_metric_data_cw('cache_states2', cacheStates)
-#         print(response)
+    allCacheKeysCount=0
+    allCacheSizeMb=0
+    for node in getNodeForKey:
+        cacheInfoFromNodes= requests.post("http://" + node['public_ip'] + ':5001/memcache/api/getCacheData').json()
+        # cacheInfoFromNodes = requests.post('http://127.0.0.1:5001/memcache/api/getCacheData').json()
+        print(cacheInfoFromNodes)
+        allCacheKeysCount=allCacheKeysCount+int(cacheInfoFromNodes['memcache_keys_count'])
+        allCacheSizeMb=allCacheSizeMb+float(cacheInfoFromNodes['memcache_size_mb'])
+        print(cacheInfoFromNodes['memcache_keys_count'])
+        print(cacheInfoFromNodes['memcache_size_mb'])
+        # for keys in allCacheFromNode['content']:
+        #     if keys!='key':
+        #         allCache['content'][keys]=allCacheFromNode['content'][keys]
+    print(allCacheKeysCount, allCacheSizeMb)
 
-#         return Response(json.dumps({
-#             'success': 'true',
-#             'data': {
-#                 'number_of_items': cacheStates[0],
-#                 'total_cache_size': cacheStates[1]
-#         }}), status=200, mimetype='application/json')
+    try:
+        cacheStates=[{
+            'metricName': 'cache_info',
+            'dimensionName': 'items_size',
+            'dimensionValue': 'number_of_items',
+            'value': allCacheKeysCount,
+            'unit': 'Count',
+        },{
+            'metricName': 'cache_info',
+            'dimensionName': 'items_size',
+            'dimensionValue': 'total_cache_size',
+            'value': allCacheSizeMb,
+            'unit': 'Megabytes',
+        }]
+        
+        print(cacheStates)
+        response = put_metric_data_cw('cache_states3', cacheStates)
+        print(response)
 
-#     except Exception as e:
-#         logging.error("Error from test_getMemcacheSize: " + str(e))
-#         Response(json.dumps({
-#             "success": "false",
-#             "error": { 
-#                 "code": 500,
-#                 "message": str(e)
-#                 }
-#             }), status=400, mimetype='application/json')
+        return Response(json.dumps({
+            'success': 'true',
+            'data': {
+                'number_of_items': allCacheKeysCount,
+                'total_cache_size': allCacheSizeMb
+        }}), status=200, mimetype='application/json')
+
+    except Exception as e:
+        logger.error("Error from test_getMemcacheSize: " + str(e))
+        Response(json.dumps({
+            "success": "false",
+            "error": { 
+                "code": 500,
+                "message": str(e)
+                }
+            }), status=400, mimetype='application/json')
+
+@blueprint.route('/getMemcacheInfoFromCW', methods=["GET", "POST"])
+def getCacheInfoFromCW():
+    getCacheKeysCount=get_metric_data_cw('cache_states3', 'cache_info', 'items_size', 'number_of_items', 'Average')['Datapoints']
+    getCacheSizeMb=get_metric_data_cw('cache_states3', 'cache_info', 'items_size', 'total_cache_size', 'Average')['Datapoints']
+
+    return {"count": getCacheKeysCount, "size":  getCacheSizeMb}
+
+
+@blueprint.route('/clearCache', methods=["GET", "POST"])
+def clearCacheFromMemcaches():
+    getNodeForKey = json.loads(getActiveNodes().data)["details"]
+
+    successCount=0
+    for node in getNodeForKey:
+        print(node['public_ip'])
+        response = requests.post("http://" + node['public_ip'] + ':5001/memcache/api/clearAll').json()
+        print(response)
+        if response['success']:
+            successCount=successCount+1
+        # response = requests.post('http://127.0.0.1:5001/memcache/api/clearAll').json()
+    
+    if successCount==len(getNodeForKey):
+        return {
+            "success": "true",
+            "msg": "Cache cleared from all nodes"
+        }
+    else:
+        return {
+            "success": "false",
+            "msg": "Could not clear all caches"
+        }
