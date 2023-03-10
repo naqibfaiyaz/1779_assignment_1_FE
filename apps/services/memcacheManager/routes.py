@@ -149,24 +149,49 @@ def fetchNumberOfNodes():
 @blueprint.route('/getRate', methods=['GET', 'POST'])
 def getRateForRequests():
     rateType = request.args.get('rate')
-    print(rateType)
-    totalHit = int(get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'hit')['Datapoints'][0]['Sum'])
-    totalMiss = int(get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'miss')['Datapoints'][0]['Sum'])
+    getHit=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'hit')['Datapoints']
+    getMiss=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'miss')['Datapoints']
+    if getHit:
+        totalHit = int(getHit[0]['Sum'])
+    else: 
+        totalHit=0
+    if getMiss:
+        totalMiss = int(getMiss[0]['Sum'])
+    else: 
+        totalMiss=0
+    
+    totalResponse = totalHit+totalMiss
 
     if rateType=='miss':
-        rate = totalMiss/(totalHit+totalMiss)
-        response = {
-            "success": "true",
-            "rate": rateType,
-            "value": rate
-        }
+        if totalResponse>0:
+            rate = totalMiss/totalResponse
+            response = {
+                "success": "true",
+                "rate": rateType,
+                "value": rate
+            }
+        else:
+            rate = 0
+            response = {
+                "success": "true",
+                "rate": rateType,
+                "value": rate
+            }
     elif rateType=='hit':
-        rate = totalHit/(totalHit+totalMiss)
-        response = {
-            "success": "true",
-            "rate": rateType,
-            "value": rate
-        }
+        if totalResponse>0:
+            rate = totalHit/totalResponse
+            response = {
+                "success": "true",
+                "rate": rateType,
+                "value": rate
+            }
+        else:
+            rate = 0
+            response = {
+                "success": "true",
+                "rate": rateType,
+                "value": rate
+            }
     else: 
         return Response(json.dumps("rate type is missing"), status=400, mimetype='application/json')
 

@@ -66,6 +66,7 @@ def get_metric_data_cw(namespace, metricName, dimensions, value):
             Namespace=namespace,  # Unit='Percent',
             Statistics=['Sum'],
             Dimensions=[{'Name': dimensions, 'Value': value}])
+        print(response)
     except Exception as e:
         print("Error from test_getMemcacheSize: " + str(e))
         return {
