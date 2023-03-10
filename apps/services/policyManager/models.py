@@ -32,7 +32,6 @@ class policyConfig(db.Model):
 
     @property
     def serialize(self):
-        print(self)
         return {
             'id': self.id,
             'policy_name': self.policy_name,

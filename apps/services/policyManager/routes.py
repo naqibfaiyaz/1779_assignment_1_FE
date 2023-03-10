@@ -68,6 +68,11 @@ def getConfigAll():
             }
 
     for policy in updatedPolicy:
-        response[policy['policy_name']] = policy['value']
+        if policy['policy_name']=='numNodes' or policy['policy_name']=='cacheSize':
+            response[policy['policy_name']] = int(policy['value'])
+        elif policy['policy_name']=='maxMiss' or policy['policy_name']=='minMiss':
+            response[policy['policy_name']] = float(policy['value'])
+        else:
+            response[policy['policy_name']] = policy['value']
 
     return Response(json.dumps(response), status=200, mimetype='application/json')
