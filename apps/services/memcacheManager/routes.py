@@ -131,12 +131,14 @@ def changePolicyInDB(policyParam=None, cacheSizeParam=None):
         policy='random'
     cacheSize = cacheSizeParam or request.args.get("cacheSize")
     mode = request.args.get('mode')
-    numNodes = int(request.args.get('numNodes'))
-    if currentNodeCount!=numNodes:
-        print(numNodes)
-        print(currentNodeCount)
-        print(numNodes-currentNodeCount)
-        changeNodes(numNodes-currentNodeCount)
+    numNodes = request.args.get('numNodes')
+    if numNodes:
+        nodeNum = int(numNodes)
+        if currentNodeCount!=nodeNum:
+            print(nodeNum)
+            print(currentNodeCount)
+            print(nodeNum-currentNodeCount)
+            changeNodes(nodeNum-currentNodeCount)
 
     expRatio = request.args.get('expRatio')
     shrinkRatio = request.args.get('shrinkRatio')
