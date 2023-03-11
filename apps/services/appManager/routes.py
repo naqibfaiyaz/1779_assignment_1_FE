@@ -40,10 +40,10 @@ def route_template(template):
         logger.error(str(e))
         return render_template('home/page-500.html'), 500
 
-@blueprint.route('/show_stats')
-def show_stats():
+# @blueprint.route('/show_stats')
+# def show_stats():
 
-    return render_template('home/index.html', segment='index')
+#     return render_template('home/index.html', segment='index')
 
 @blueprint.route('/clear_cache')
 def clear_cache():
@@ -58,12 +58,14 @@ def increase():
         msg='Cannot be more than 8'
         
     else:
-        nodes = nodes-1
-        curr_node=memcacheNodes.query.filter_by(status='active').first()
-        curr_node.status='inactive'
+        nodes = nodes+1
+        curr_node=memcacheNodes.query.filter_by(status='inactive').first()
+        curr_node.status='active'
+        msg=nodes
+        reassignPartitions()
+        
         db.session.commit()
 
-        #reassignPartitions()
         #flash('Record was successfully added')
         
 
@@ -83,11 +85,14 @@ def decrease():
         nodes = nodes-1
         curr_node=memcacheNodes.query.filter_by(status='active').first()
         curr_node.status='inactive'
+        msg=nodes
+        reassignPartitions()
+        
         db.session.commit()
         #msg=nodes
         # curr_node_st/
 
-    return render_template('home/index.html', segment='index',msg=nodes)
+    return render_template('home/index.html', segment='index',msg=msg)
 
 
 @blueprint.route('/config', methods=['POST', 'PUT'])
