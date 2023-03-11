@@ -13,10 +13,9 @@ from apps import logger
 from apps.services.home.routes import get_segment
 from apps.services.nodePartitions.models import nodePartitions, memcacheNodes
 from apps.services.nodePartitions.routes import reassignPartitions
+from apps.services.memcacheManager.routes import clearCacheFromMemcaches,deleteAllKeysFromDB
 
-global nodes
-nodes=1
-global msg
+global curr_mode
 curr_mode='Manual'
 
 
@@ -44,35 +43,38 @@ def route_template(template):
 
 @blueprint.route('/show_stats')
 def show_stats():
+
     return render_template('home/index.html', segment='index')
 
 @blueprint.route('/delete_all')
 def delete_all():
+    clearCacheFromMemcaches()
+    deleteAllKeysFromDB
     return render_template('home/index.html', segment='index')
 
 @blueprint.route('/clear_cache')
 def clear_cache():
+    clearCacheFromMemcaches()
     return render_template('home/index.html', segment='index')
 
 
 
 @blueprint.route('/increase', methods=['POST', 'PUT'])
 def increase():
-    global nodes
-    global msg
+    
+    nodes=memcacheNodes.query.filter_by(status='active').count()
     if nodes==8:
         msg='Cannot be more than 8'
         
     else:
-        nodes = nodes+1
-        msg=nodes
-        curr_node=memcacheNodes.query.filter_by(status='inactive').first()
-        curr_node.status='active'
-        # msg=memcacheNodes.query.filter_by(status='active').count()
-        msg=curr_node.id
+        nodes = nodes-1
+        curr_node=memcacheNodes.query.filter_by(status='active').first()
+        curr_node.status='inactive'
         db.session.commit()
 
         #reassignPartitions()
+        #flash('Record was successfully added')
+        
 
 
     return render_template('home/index.html', segment='index',msg=msg)
@@ -80,24 +82,24 @@ def increase():
 
 @blueprint.route('/decrease', methods=['POST', 'PUT'])
 def decrease():
-    global nodes
-    global msg
+    
+    nodes=memcacheNodes.query.filter_by(status='active').count()
+    
     if nodes==1:
         msg='Cannot be less than 1'
         
     else:
         nodes = nodes-1
-        msg=nodes
-        curr_node_status=memcacheNodes.query.filter_by(status='active').first()
-        msg=curr_node_status
-        #curr_node_status.status='inactive'
-        reassignPartitions()
+        curr_node=memcacheNodes.query.filter_by(status='active').first()
+        curr_node.status='inactive'
+        db.session.commit()
+        #msg=nodes
+        # curr_node_st/
+
+    return render_template('home/index.html', segment='index',msg=nodes)
 
 
-    return render_template('home/index.html', segment='index',msg=msg)
-
-
-@blueprint.route('/auto', methods=['POST', 'PUT'])
+@blueprint.route('/automatic', methods=['POST', 'PUT'])
 def autoModeMemcache1():
     curr_mode='Automatic'
     return render_template('home/index.html', segment='index',curr_mode=curr_mode)
