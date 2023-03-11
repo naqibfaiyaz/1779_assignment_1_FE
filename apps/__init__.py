@@ -18,6 +18,7 @@ logger.setLevel(logging.DEBUG)
 storageUrl=os.getenv('storage_url')
 policyManagementUrl=os.getenv('app_manager_url')
 backendUrl=os.getenv('backend_url')
+nodeManagerUrl=os.getenv('node_manager')
 AWS_ACCESS_KEY=os.getenv('aws_access_key_id')
 AWS_SECRET_KEY=os.getenv('aws_secret_access_key')
 # login_manager = LoginManager()
@@ -28,7 +29,7 @@ def register_extensions(app):
 
 
 def register_blueprints(app):
-    for module_name in ('home', 'photoUpload', 'nodePartitions', 'cloudWatch', 'memcacheManager', 's3Manager', 'policyManager', 'appManager'):
+    for module_name in ('home', 'photoUpload', 'nodePartitions', 'cloudWatch', 'memcacheManager', 's3Manager', 'policyManager', 'appManager', 'autoScaler'):
         module = import_module('apps.services.{}.routes'.format(module_name))
         app.register_blueprint(module.blueprint)
 

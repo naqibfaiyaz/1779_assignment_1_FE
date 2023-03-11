@@ -54,14 +54,14 @@ def getSinglePhotoFromMemcache(url_key):
     cacheData = requests.post('http://' + getNodeForKey['public_ip'] + ':5001/memcache/api/key/' + key, data={"key": key}).json()
 
     cacheStates=[{
-            'metricName': 'cache_response',
-            'dimensionName': 'hit_miss',
+            'metricName': 'request_response',
+            'dimensionName': 'response_type',
             'dimensionValue': cacheData["cache_status"],
             'value': 1,
             'unit': 'Count',
         }]
 
-    put_metric_data_cw('Cache Response2', cacheStates)
+    put_metric_data_cw('Cache info', cacheStates)
     if "content" in cacheData:
         return cacheData
     elif "content" not in cacheData and "error" in cacheData:
@@ -164,8 +164,8 @@ def fetchNumberOfNodes():
 @blueprint.route('/getRate', methods=['GET', 'POST'])
 def getRateForRequests():
     rateType = request.args.get('rate')
-    getHit=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'hit', 'Sum', 60, 60)['Datapoints']
-    getMiss=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'miss', 'Sum', 60, 60)['Datapoints']
+    getHit=get_metric_data_cw('Cache info', 'request_response', 'response_type', 'hit', 'Sum', 60, 60)['Datapoints']
+    getMiss=get_metric_data_cw('Cache info', 'request_response', 'response_type', 'miss', 'Sum', 60, 60)['Datapoints']
     totalHit=0
     totalMiss=0
     if getHit:
@@ -259,9 +259,9 @@ def test_getMemcacheSize():
             'unit': 'Megabytes',
         }]
         
-        print(cacheStates)
+        # print(cacheStates)
         response = put_metric_data_cw('cache_states3', cacheStates)
-        print(response)
+        # print(response)
 
         return Response(json.dumps({
             'success': 'true',
@@ -282,10 +282,10 @@ def test_getMemcacheSize():
 
 @blueprint.route('/getHitMissInfoFromCW', methods=["GET", "POST"])
 def getresponseInfoFromCW():
-    getHitCount=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'hit', 'Sum', 60, 24*3600)['Datapoints']
-    getMissCount=get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'miss', 'Sum', 60, 24*3600)['Datapoints']
+    getHitCount=get_metric_data_cw('Cache info', 'request_response', 'response_type', 'hit', 'Sum', 60, 24*3600)['Datapoints']
+    getMissCount=get_metric_data_cw('Cache info', 'request_response', 'response_type', 'miss', 'Sum', 60, 24*3600)['Datapoints']
 
-    getRequestCount = get_metric_data_cw('Cache Response2', 'cache_response', 'hit_miss', 'hit', 'Sum', 60, 24*3600)['Datapoints']
+    getRequestCount = get_metric_data_cw('Cache info', 'request_response', 'response_type', 'hit', 'Sum', 60, 24*3600)['Datapoints']
     getHitRate = []
     getMissRate = []
     hitLength=len(getRequestCount)

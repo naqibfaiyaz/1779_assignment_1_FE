@@ -23,12 +23,13 @@ def put_metric_data_cw(namespaceData, data):
                             'Value': metric['dimensionValue']
                         },
                     ],
-                    'Timestamp': datetime.datetime.now(),
+                    'Timestamp': datetime.datetime.utcnow(),
                     'Value': metric['value'],
                     'Unit': metric['unit']
                 },
             ]
             
+            print(metrics)
             # Print out bucket names
             response = cloudWatch.put_metric_data(
                 Namespace=namespaceData,

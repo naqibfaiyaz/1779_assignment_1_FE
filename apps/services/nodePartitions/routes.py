@@ -73,6 +73,8 @@ def updateNodeStatus():
     getNodeDetail = memcacheNodes.query.filter_by(id=instanceToChange).first()
     getNodeDetail.status=status
     db.session.commit()
+
+    # reassignPartitions()
     
     return memcacheNodes.query.filter_by(id=instanceToChange).first().serialize
 
@@ -100,7 +102,7 @@ def reassignPartitions():
         updatePartition(node_to_be_assigned, i+1)
 
     # Waiting until AWS servers are live 
-    # reassignKeys()
+    reassignKeys()
 
     return getPartitionAll()
 
