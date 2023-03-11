@@ -367,6 +367,12 @@ def getCacheInfoFromCW():
 
     return {"count": getCacheKeysCount, "size":  getCacheSizeMb}
 
+@blueprint.route('/getNodeInfoFromCW', methods=["GET", "POST"])
+def getNodeInfoFromCW():
+    getCacheKeysCount=get_metric_data_cw('Node Info', 'number_of_nodes', 'nodes', 'node_count', 'Average', 60, 24*3600)['Datapoints']
+
+    return {"nodeCount": getCacheKeysCount}
+
 # clear all caches in nodes
 @blueprint.route('/clearAll', methods=["GET", "POST"])
 def clearCacheFromMemcaches():

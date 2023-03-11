@@ -8,6 +8,7 @@ from flask import render_template, request, redirect, url_for, Response
 import requests, json
 from apps import logger, db
 from apps.services.nodePartitions.models import nodePartitions, memcacheNodes
+from apps.services.cloudWatch.routes import put_metric_data_cw
 from sqlalchemy import func
 
 @blueprint.route('/getPartitionForMd5/<key>',methods=['GET'])
@@ -52,7 +53,16 @@ def updatePartition(node_id=None, partition_id=None):
 def getActiveNodes():
     response = memcacheNodes.query.filter_by(status='active')
     allActiveNodes = [i.serialize for i in response]
-    
+    cacheStates=[{
+            'metricName': 'number_of_nodes',
+            'dimensionName': 'nodes',
+            'dimensionValue': 'node_count',
+            'value': len(allActiveNodes),
+            'unit': 'Count',
+        }]
+
+    put_metric_data_cw('Node Info', cacheStates)
+
     return Response(json.dumps({'success': 'true', 'numNodes': len(allActiveNodes), 'details': allActiveNodes}, default=str), status=200, mimetype='application/json')
      
 @blueprint.route('/updateNodeStatus', methods=['POST'])
