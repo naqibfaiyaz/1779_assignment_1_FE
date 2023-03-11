@@ -48,9 +48,9 @@
                                                 title="clear data of memcache nodes" class="btn btn-warning">Clear
                                                 Cache</button>
                                         </form>
-                                        {%if msg%}
+                                        {%if cache_msg%}
                                         </br>
-                                        <p>Cache Status: {{msg}}</p>
+                                        <p>Cache Status: {{cache_msg}}</p>
                                         {% endif %}
 
 
@@ -68,13 +68,18 @@
                                         <h5>Select Mode</h5>
                                     </div>
                                     <div class="card-block">
-                                        <form action='/appManager/manual' method="POST">
-                                            <button type="submit" name="manual" title='Click to select Manual mode'
-                                                class="btn btn-light">Manual</button>
-                                        </form>
-                                        <form action='/appManager/auto' method="POST">
-                                            <button type="submit" title='Click to select Automatic mode' name="auto"
-                                                class="btn btn-dark">Automatic</button>
+                                        <form action='/appManager/mode' method="POST">
+                                            <div class="form-group">
+                                                <label for="exampleFormControlSelect1">Example select</label>
+                                                <select class="form-control" id="exampleFormControlSelect1" name="mode">
+                                                    <option value="manual">Manual</option>
+                                                    <option value="auto">Automatic</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                            <button type="submit" title="Increase number of nodes by 1" name="Change Mode"
+                                                class="btn btn-square btn-primary">Confirm</button>
+                                            </div>
                                         </form>
                                         {%if curr_mode%}
                                         </br>
@@ -126,32 +131,32 @@
 
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <form action='/appManager/automatic' method="POST"
+                                                <form action='/appManager/config' method="POST"
                                                     enctype="multipart/form-data">
                                                     <div class="form-group">
                                                         <label for="Max_miss_threshold">Max_miss_threshold</label>
-                                                        <input type="text" class="form-control" id="Max_miss_threshold"
+                                                        <input type="number" step="0.01" class="form-control" id="Max_miss_threshold"
                                                             name="Max_miss_threshold"
                                                             placeholder="Enter the Max miss rate threshold"
                                                             value={{Max_rate_threshold}}>
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="Min_miss_threshold">Min_miss_threshold</label>
-                                                        <input type="text" class="form-control" id="Min_miss_threshold"
+                                                        <input type="number" step="0.01" class="form-control" id="Min_miss_threshold"
                                                             name="Min_miss_threshold"
                                                             placeholder="Enter the Min miss rate threshold"
                                                             value={{Min_rate_threshold}}>
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="ratio_expand">ratio_expand</label>
-                                                        <input type="text" class="form-control" id="ratio_expand"
+                                                        <input type="number" step="0.01" class="form-control" id="ratio_expand"
                                                             name="ratio_expand"
                                                             placeholder="Enter the ratio by which to exapnd the pool"
                                                             value={{ratio_exapnd}}>
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="ratio_shrink">ratio_shrink</label>
-                                                        <input type="text" class="form-control" id="ratio_shrink"
+                                                        <input type="number" step="0.01" class="form-control" id="ratio_shrink"
                                                             name="ratio_shrink"
                                                             placeholder="Enter the ratio by which to shrink the pool"
                                                             value={{ratio_shrink}}>
@@ -160,6 +165,10 @@
                                                     <button type="submit" name="update_parameters"
                                                         class="btn btn-primary">Update parameters</button>
                                                 </form>
+                                                {%if curr_config%}
+                                                </br>
+                                                <p>Current Config: {{curr_config}}</p>
+                                                {% endif %}
                                                 <!--
                                                 <form action="{{ url_for('photoUpload_blueprint.putPhoto') }}" method="post" enctype="multipart/form-data">
                                                     <div class="form-group">

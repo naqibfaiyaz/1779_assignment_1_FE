@@ -6,7 +6,7 @@ Copyright (c) 2019 - present AppSeed.us
 
 from apps.services.appManager import blueprint
 from apps import db, backendUrl
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, json
 import requests
 from jinja2 import TemplateNotFound
 from apps import logger
@@ -48,9 +48,7 @@ def show_stats():
 @blueprint.route('/clear_cache')
 def clear_cache():
     response = requests.post(backendUrl + '/clearAll').json()['msg']
-    return render_template('home/index.html', segment='index', msg=response)
-
-
+    return render_template('home/index.html', segment='index', cache_msg=response)
 
 @blueprint.route('/increase', methods=['POST', 'PUT'])
 def increase():
@@ -92,13 +90,20 @@ def decrease():
     return render_template('home/index.html', segment='index',msg=nodes)
 
 
-@blueprint.route('/automatic', methods=['POST', 'PUT'])
+@blueprint.route('/config', methods=['POST', 'PUT'])
 def autoModeMemcache1():
-    curr_mode='Automatic'
-    return render_template('home/index.html', segment='index',curr_mode=curr_mode)
+    curr_config = requests.post(backendUrl + '/configure_cache',
+                             params={
+        'maxMiss': request.form.get('Max_miss_threshold'),
+        'minMiss': request.form.get('Min_miss_threshold'),
+        'expRatio': request.form.get('ratio_expand'),
+        'shrinkRatio': request.form.get('ratio_shrink'),
+        }).json()
+    return render_template('home/index.html', segment='index',curr_config=json.dumps(curr_config))
     
 
-@blueprint.route('/manual' , methods=['POST', 'PUT'])
+@blueprint.route('/mode' , methods=['POST', 'PUT'])
 def set_manual_mode():
-    curr_mode='Manual'
+    curr_mode = requests.post(backendUrl + '/configure_cache',
+                             params={'mode': request.form.get('mode')}).json()['mode']
     return render_template('home/index.html', segment='index',curr_mode=curr_mode)
