@@ -31,12 +31,12 @@
                 </li> -->
                 <li data-username="Table bootstrap datatable footable" 
                     class="nav-item {% if 'tbl_bootstrap' in segment %} active {% endif %}">
-                    <a href="/photoUpload/photos.html" class="nav-link "><span class="pcoded-micon"><i
+                    <a href="{{ url_for('photoUpload_blueprint.route_template', template='photos.html') }}" class="nav-link "><span class="pcoded-micon"><i
                             class="feather icon-server"></i></span><span class="pcoded-mtext">Show All Photos</span></a>
                 </li>    
                 <li data-username="Table bootstrap datatable footable" 
                     class="nav-item {% if 'tbl_bootstrap' in segment %} active {% endif %}">
-                    <a href="/photoUpload/knownKeys.html" class="nav-link "><span class="pcoded-micon"><i
+                    <a href="{{ url_for('photoUpload_blueprint.route_template', template='knownKeys.html') }}" class="nav-link "><span class="pcoded-micon"><i
                             class="feather icon-server"></i></span><span class="pcoded-mtext">Known Keys from Table</span></a>
                 </li>             
             </ul>

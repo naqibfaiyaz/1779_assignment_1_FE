@@ -7,7 +7,7 @@ from apps.services.photoUpload import blueprint
 from flask import render_template, request, redirect, url_for
 import requests
 from jinja2 import TemplateNotFound
-from apps import logger
+from apps import logger, grafanaUrl, FE_url, app_manager_fe
 from apps.services.home.routes import get_segment
 from apps.services.memcacheManager.routes import getSinglePhotoFromMemcache, getAllPhotosFromCache, invalidateKeyFromMemcache, deleteAllKeysFromDB, getAllPhotosFromDB, putPhotoInMemcache, getPolicyFromDB, changePolicyInDB
 
@@ -30,9 +30,14 @@ def route_template(template):
 
         # Serve the file (if exists) from app/templates/home/FILE.html
         if segment=='photos.html':
-            return render_template("photoUpload/photos.html", memcache=getAllPhotos())
+            return redirect(FE_url + "/photoUpload/photos.html", code=302) # needed for app-manager EC2 instance
+            return render_template("photoUpload/photos.html", memcache=getAllPhotos()) # needed for Core FE EC2 instance
+        if segment=='dashboard.html':
+            return redirect(app_manager_fe + "/photoUpload/dashboard.html", code=302) # needed for Core FE EC2 instance
+            return render_template("photoUpload/dashboard.html", grafanaUrl=grafanaUrl) # needed for app-manager EC2 instance
         elif segment=='knownKeys.html':
-            return render_template("photoUpload/knownKeys.html", keysFromDB=getDBAllPhotos())
+            return redirect(FE_url + "/photoUpload/knownKeys.html", code=302) # needed for app-manager EC2 instance
+            return render_template("photoUpload/knownKeys.html", keysFromDB=getDBAllPhotos()) # needed for Core FE EC2 instance
         elif segment=='cache.html':
             return render_template("photoUpload/cache.html", policies=getPolicy())
         return render_template("photoUpload/" + template, segment=segment.replace('.html', ''))

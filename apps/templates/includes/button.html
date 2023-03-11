@@ -30,7 +30,7 @@
                                         <h5>Tasks</h5>
                                     </div>
                                     <div class="card-block">
-                                        <a href="/photoUpload/dashboard.html">
+                                        <a href="{{ url_for('photoUpload_blueprint.route_template', template='dashboard.html') }}">
                                             <button type="submit" name="show_stats" title="Show Statistics"
                                                 class="btn btn-primary">Show charts</button>
                                         </a>
