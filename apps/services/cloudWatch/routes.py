@@ -29,13 +29,13 @@ def put_metric_data_cw(namespaceData, data):
                 },
             ]
             
-            print(metrics)
+            # print(metrics)
             # Print out bucket names
             response = cloudWatch.put_metric_data(
                 Namespace=namespaceData,
                 MetricData=metrics
             )
-            print(response)
+            # print(response)
     except Exception as e:
         print("Error from test_getMemcacheSize: " + str(e))
         return {
