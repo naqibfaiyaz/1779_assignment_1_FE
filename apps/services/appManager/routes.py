@@ -9,7 +9,7 @@ from apps import db, backendUrl
 from flask import render_template, request, json
 import requests
 from jinja2 import TemplateNotFound
-from apps import logger
+from apps import logger, nodeManagerUrl
 from apps.services.home.routes import get_segment
 from apps.services.nodePartitions.models import nodePartitions, memcacheNodes
 from apps.services.nodePartitions.routes import reassignPartitions
@@ -53,19 +53,20 @@ def clear_cache():
 @blueprint.route('/increase', methods=['POST', 'PUT'])
 def increase():
     
-    nodes=memcacheNodes.query.filter_by(status='active').count()
-    if nodes==8:
+    nodes= requests.post(backendUrl + '/getNumNodes').json()['numNodes']
+    if nodes>=8:
         msg='Cannot be more than 8'
         
     else:
-        nodes = nodes+1
-        curr_node=memcacheNodes.query.filter_by(status='inactive').first()
-        curr_node.status='active'
-        msg=nodes
-        reassignPartitions()
+        # nodes = nodes+1
+    #     curr_node=memcacheNodes.query.filter_by(status='inactive').first()
+    #     curr_node.status='active'
+        # msg=nodes
+    #     reassignPartitions()
         
-        db.session.commit()
-
+    #     db.session.commit()
+        response = requests.post(nodeManagerUrl + '/changeNodes/1').json()
+        msg=response['numNodes']
         #flash('Record was successfully added')
         
 
@@ -76,19 +77,21 @@ def increase():
 @blueprint.route('/decrease', methods=['POST', 'PUT'])
 def decrease():
     
-    nodes=memcacheNodes.query.filter_by(status='active').count()
+    nodes=requests.post(backendUrl + '/getNumNodes').json()['numNodes']
     
-    if nodes==1:
+    if nodes<=1:
         msg='Cannot be less than 1'
         
     else:
-        nodes = nodes-1
-        curr_node=memcacheNodes.query.filter_by(status='active').first()
-        curr_node.status='inactive'
-        msg=nodes
-        reassignPartitions()
+        # nodes = nodes-1
+        # curr_node=memcacheNodes.query.filter_by(status='active').first()
+        # curr_node.status='inactive'
         
-        db.session.commit()
+        # reassignPartitions()
+        
+        # db.session.commit()
+        response = requests.post(nodeManagerUrl + '/changeNodes/-1').json()
+        msg=response['numNodes']
         #msg=nodes
         # curr_node_st/
 

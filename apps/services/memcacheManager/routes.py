@@ -8,7 +8,7 @@ from flask import request, json, Response
 import requests
 from apps import logger, policyManagementUrl
 from apps.services.cloudWatch.routes import put_metric_data_cw, get_metric_data_cw
-from apps.services.nodePartitions.routes import getPartitionRange, getActiveNodes
+from apps.services.nodePartitions.routes import getPartitionRange, getActiveNodes, changeNodes
 from apps.services.helper import upload_file, removeAllImages
 
 # Upload keys from caches from all the nodes
@@ -124,12 +124,20 @@ def deleteAllKeysFromDB():
 @blueprint.route('/configure_cache',methods=['POST'])
 def changePolicyInDB(policyParam=None, cacheSizeParam=None):
     test_getMemcacheSize()
+    currentNodeCount = json.loads(fetchNumberOfNodes().data)['numNodes']
+    print(currentNodeCount)
     policy = policyParam or request.args.get("policy")
     if policy and policy=='RR':
         policy='random'
     cacheSize = cacheSizeParam or request.args.get("cacheSize")
     mode = request.args.get('mode')
-    numNodes = request.args.get('numNodes')
+    numNodes = int(request.args.get('numNodes'))
+    if currentNodeCount!=numNodes:
+        print(numNodes)
+        print(currentNodeCount)
+        print(numNodes-currentNodeCount)
+        changeNodes(numNodes-currentNodeCount)
+
     expRatio = request.args.get('expRatio')
     shrinkRatio = request.args.get('shrinkRatio')
     maxMiss = request.args.get('maxMiss')
