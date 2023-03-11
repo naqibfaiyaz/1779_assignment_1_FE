@@ -12,9 +12,12 @@ def autoScalerFunction():
     config = requests.post(policyManagementUrl + '/getCurrentConfig').json()
     activeNodeCount = requests.post(backendUrl + '/getNumNodes').json()
 
+    # missRate=1
+
     if missRate > config['maxMiss']:
         if activeNodeCount['numNodes']<8 and int(activeNodeCount['numNodes'])*float(config['expRatio'])<=8:
-            response = increaseNode(int(activeNodeCount['numNodes'])*float(config['expRatio'])-activeNodeCount['numNodes'])
+            NodeAddition = int(activeNodeCount['numNodes'])*float(config['expRatio'])-activeNodeCount['numNodes']
+            response = requests.post(nodeManagerUrl + '/changeNodes/' + str(NodeAddition)).json()
         else:
             print(int(activeNodeCount['numNodes']*config['expRatio']))
             response =  {
@@ -23,7 +26,12 @@ def autoScalerFunction():
             }
     elif missRate < config['minMiss']:
         if activeNodeCount['numNodes']>1 and int(activeNodeCount['numNodes'])*float(config['shrinkRatio'])>=1:
-            response = decreaseNode(activeNodeCount['numNodes']-int(activeNodeCount['numNodes'])*float(config['shrinkRatio']))
+            NodeAddition = int(activeNodeCount['numNodes'])*float(config['shrinkRatio'])-activeNodeCount['numNodes']
+            print("addition: " + str(int(activeNodeCount['numNodes'])*float(config['shrinkRatio'])))
+            print("active: " + str(activeNodeCount['numNodes']))
+            print("addition: " + str(NodeAddition))
+            response = requests.get(nodeManagerUrl + '/changeNodes/' + str(NodeAddition)).json()
+            print(response)
         else:
             response =  {
                 "success": "false",
@@ -34,42 +42,8 @@ def autoScalerFunction():
             "msg": "Nothing to do"
         }
     
-    print(missRate, config, activeNodeCount)
+    # print(missRate, config, activeNodeCount)
 
     return response
 
     # return render_template("s3_examples/list.html",title="s3 Instances",buckets=buckets)
-
-def increaseNode(additionalNodeRequired):
-    allNodes = requests.get(nodeManagerUrl + '/getAllNodes').json()['details']
-    # 
-    i=0
-    for node in allNodes:
-        if node['status']=='inactive':
-            print(node)
-            requests.post(nodeManagerUrl + '/updateNodeStatus', data={'instance_to_change': node['id'], 'status': 'active'}).json()
-            i=i+1
-        
-        if i >= int(additionalNodeRequired):
-            break
-
-    requests.post(nodeManagerUrl + '/reassignPartitions')
-
-    return requests.post(backendUrl + '/getNumNodes').json()
-
-def decreaseNode(additionalNodeRequired):
-    allNodes = requests.get(nodeManagerUrl + '/getAllNodes').json()['details']
-    
-    i=0
-    for node in allNodes:
-        if node['status']=='active':
-            print(node)
-            requests.post(nodeManagerUrl + '/updateNodeStatus', data={'instance_to_change': node['id'], 'status': 'inactive'}).json()
-            i=i+1
-        
-        if i >= int(additionalNodeRequired):
-            break
-
-    requests.post(nodeManagerUrl + '/reassignPartitions')
-
-    return requests.post(backendUrl + '/getNumNodes').json()

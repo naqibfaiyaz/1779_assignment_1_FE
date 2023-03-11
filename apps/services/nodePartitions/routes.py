@@ -67,9 +67,9 @@ def getActiveNodes():
      
 @blueprint.route('/updateNodeStatus', methods=['POST'])
 # @login_required
-def updateNodeStatus():
-    instanceToChange = request.form.get('instance_to_change')
-    status = request.form.get('status')
+def updateNodeStatus(instanceId=None, NewStatus=None):
+    instanceToChange = instanceId or request.form.get('instance_to_change')
+    status = NewStatus or request.form.get('status')
     getNodeDetail = memcacheNodes.query.filter_by(id=instanceToChange).first()
     getNodeDetail.status=status
     db.session.commit()
@@ -126,3 +126,29 @@ def reassignKeys():
 
     except:
         return {"success": 'false'}
+    
+@blueprint.route('/changeNodes/<additionalNodeRequired>', methods=['POST', 'GET'])
+def changeNodes(additionalNodeRequired):
+    allNodes = json.loads(getNodesAll().data)['details']
+    # 
+    i=0
+    print(additionalNodeRequired)
+    for node in allNodes:
+        if float(additionalNodeRequired)>0 and node['status']=='inactive':
+            print(node)
+            updateNodeStatus(node['id'], 'active')
+            
+            i=i+1
+        elif float(additionalNodeRequired)<0 and node['status']=='active':
+            updateNodeStatus(node['id'], 'inactive')
+            
+            i=i+1
+
+        
+        if i >= int(abs(float(additionalNodeRequired))):
+            break
+        
+
+    reassignPartitions()
+
+    return json.loads(getActiveNodes().data)
