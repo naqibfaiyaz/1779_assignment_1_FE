@@ -33,7 +33,7 @@ def route_template(template):
             return redirect(FE_url + "/photoUpload/photos.html", code=302) # needed for app-manager EC2 instance
             return render_template("photoUpload/photos.html", memcache=getAllPhotos()) # needed for Core FE EC2 instance
         if segment=='dashboard.html':
-            return redirect(app_manager_fe + "/photoUpload/dashboard.html", code=302) # needed for Core FE EC2 instance
+            # return redirect(app_manager_fe + "/photoUpload/dashboard.html", code=302) # needed for Core FE EC2 instance
             return render_template("photoUpload/dashboard.html", grafanaUrl=grafanaUrl) # needed for app-manager EC2 instance
         elif segment=='knownKeys.html':
             return redirect(FE_url + "/photoUpload/knownKeys.html", code=302) # needed for app-manager EC2 instance
