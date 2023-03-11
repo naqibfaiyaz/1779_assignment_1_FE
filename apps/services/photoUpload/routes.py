@@ -114,9 +114,10 @@ def changePolicy():
     
     response = changePolicyInDB(policy, newCapacity*1024*1024).json()
 
+    print(response)
     if 'success' in response and response['success']=='true':
         return redirect(url_for("photoUpload_blueprint.route_template", template="cache.html"))
         
 @blueprint.route('/getCurrentPolicy',methods=['POST'])
 def getPolicy():
-    return getPolicyFromDB()['content']
+    return getPolicyFromDB('52.87.212.134')['content']

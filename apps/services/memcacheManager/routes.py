@@ -128,11 +128,11 @@ def changePolicyInDB(policyParam=None, cacheSizeParam=None):
     if policy and policy=='RR':
         policy='random'
     cacheSize = cacheSizeParam or request.args.get("cacheSize")
-    mode = request.args.get('mode'), 
-    numNodes = request.args.get('numNodes'), 
-    expRatio = request.args.get('expRatio'), 
-    shrinkRatio = request.args.get('shrinkRatio'), 
-    maxMiss = request.args.get('maxMiss'), 
+    mode = request.args.get('mode')
+    numNodes = request.args.get('numNodes')
+    expRatio = request.args.get('expRatio')
+    shrinkRatio = request.args.get('shrinkRatio')
+    maxMiss = request.args.get('maxMiss')
     minMiss = request.args.get('minMiss')
     
     response = requests.post(policyManagementUrl+"/refreshConfig", params={'mode': mode, 'numNodes': numNodes, 'cacheSize': cacheSize, 'policy': policy, 'expRatio': expRatio, 'shrinkRatio': shrinkRatio, 'maxMiss': maxMiss, 'minMiss': minMiss})

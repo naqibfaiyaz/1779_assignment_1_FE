@@ -92,18 +92,28 @@ def decrease():
 
 @blueprint.route('/config', methods=['POST', 'PUT'])
 def autoModeMemcache1():
+    policy = request.form.get("replacement_policy")
+    cacheSize = request.form.get("capacity")
+    mode = request.form.get("mode")
+    expRatio = request.form.get('ratio_expand') 
+    shrinkRatio = request.form.get('ratio_shrink')
+    maxMiss = request.form.get('Max_miss_threshold')
+    minMiss = request.form.get('Min_miss_threshold')
     curr_config = requests.post(backendUrl + '/configure_cache',
                              params={
-        'maxMiss': request.form.get('Max_miss_threshold'),
-        'minMiss': request.form.get('Min_miss_threshold'),
-        'expRatio': request.form.get('ratio_expand'),
-        'shrinkRatio': request.form.get('ratio_shrink'),
+                'policy': policy or None,
+                'cacheSize': cacheSize or None,
+                'mode': mode or None,
+                'maxMiss': maxMiss or None,
+                'minMiss': minMiss or None,
+                'expRatio': expRatio or None,
+                'shrinkRatio': shrinkRatio or None,
         }).json()
     return render_template('home/index.html', segment='index',curr_config=json.dumps(curr_config))
     
 
-@blueprint.route('/mode' , methods=['POST', 'PUT'])
-def set_manual_mode():
-    curr_mode = requests.post(backendUrl + '/configure_cache',
-                             params={'mode': request.form.get('mode')}).json()['mode']
-    return render_template('home/index.html', segment='index',curr_mode=curr_mode)
+# @blueprint.route('/mode' , methods=['POST', 'PUT'])
+# def set_manual_mode():
+#     curr_mode = requests.post(backendUrl + '/configure_cache',
+#                              params={'mode': request.form.get('mode')}).json()['mode']
+#     return render_template('home/index.html', segment='index',curr_mode=curr_mode)

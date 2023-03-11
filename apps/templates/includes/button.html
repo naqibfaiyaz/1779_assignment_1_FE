@@ -61,34 +61,6 @@
 
                         </div>
                         <div class="row">
-                            <div class="col-md-12">
-
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5>Select Mode</h5>
-                                    </div>
-                                    <div class="card-block">
-                                        <form action='/appManager/mode' method="POST">
-                                            <div class="form-group">
-                                                <label for="exampleFormControlSelect1">Example select</label>
-                                                <select class="form-control" id="exampleFormControlSelect1" name="mode">
-                                                    <option value="manual">Manual</option>
-                                                    <option value="auto">Automatic</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                            <button type="submit" title="Increase number of nodes by 1" name="Change Mode"
-                                                class="btn btn-square btn-primary">Confirm</button>
-                                            </div>
-                                        </form>
-                                        {%if curr_mode%}
-                                        </br>
-                                        <p>Current mode: {{curr_mode}}</p>
-                                        {% endif %}
-
-                                    </div>
-                                </div>
-                            </div>
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
@@ -133,6 +105,25 @@
                                             <div class="col-md-6">
                                                 <form action='/appManager/config' method="POST"
                                                     enctype="multipart/form-data">
+                                                    <div class="form-group">
+                                                        <label for="exampleFormControlSelect1">Select Replacement Policy</label>
+                                                        <select name="replacement_policy" class="form-control" id="exampleFormControlSelect1">
+                                                            <option value="LRU">LRU</option>
+                                                            <option value="random">RR</option>
+                                                            <option value="no_cache">No Cache</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="key">capacity in MB</label>
+                                                        <input type="number" class="form-control" id="key" name="capacity" placeholder="Enter the key">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="exampleFormControlSelect1">Example select</label>
+                                                        <select class="form-control" id="exampleFormControlSelect1" name="mode">
+                                                            <option value="manual">Manual</option>
+                                                            <option value="auto">Automatic</option>
+                                                        </select>
+                                                    </div>
                                                     <div class="form-group">
                                                         <label for="Max_miss_threshold">Max_miss_threshold</label>
                                                         <input type="number" step="0.01" class="form-control" id="Max_miss_threshold"
