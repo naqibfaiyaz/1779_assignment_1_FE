@@ -27,8 +27,11 @@ def putPhotoInMemcache(url_key=None, file=None):
         image_path = upload_file(fileData)
         response = requests.post('http://' + getNodeForKey['public_ip'] + ':5001/memcache/api/upload', data={"key": key, "image_path": image_path}).json()
         
-        logger.info('Put request received- ' + str(response))
         test_getMemcacheSize()
+        if 'error' in response:
+            response['msg']=response['error']['message']
+
+        print(response)
         return response
     elif key:
         getNodeForKey = getPartitionRange(key)['node_data']
@@ -113,6 +116,7 @@ def deleteAllKeysFromDB():
     getNodeForKey = json.loads(getActiveNodes().data)["details"][0]
     print(getNodeForKey)
     response =json.loads(requests.post('http://' + getNodeForKey['public_ip'] + ':5001/memcache/api/delete_all').content)
+    clearCacheFromMemcaches()
     test_getMemcacheSize()
     return response
 
@@ -233,8 +237,8 @@ def test_getMemcacheSize():
         print(cacheInfoFromNodes)
         allCacheKeysCount=allCacheKeysCount+int(cacheInfoFromNodes['memcache_keys_count'])
         allCacheSizeMb=allCacheSizeMb+float(cacheInfoFromNodes['memcache_size_mb'])
-        print(cacheInfoFromNodes['memcache_keys_count'])
-        print(cacheInfoFromNodes['memcache_size_mb'])
+        # print(cacheInfoFromNodes['memcache_keys_count'])
+        # print(cacheInfoFromNodes['memcache_size_mb'])
         # for keys in allCacheFromNode['content']:
         #     if keys!='key':
         #         allCache['content'][keys]=allCacheFromNode['content'][keys]
@@ -364,7 +368,7 @@ def getCacheInfoFromCW():
     return {"count": getCacheKeysCount, "size":  getCacheSizeMb}
 
 # clear all caches in nodes
-@blueprint.route('/clearCache', methods=["GET", "POST"])
+@blueprint.route('/clearAll', methods=["GET", "POST"])
 def clearCacheFromMemcaches():
     getNodeForKey = json.loads(getActiveNodes().data)["details"]
 

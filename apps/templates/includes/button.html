@@ -34,16 +34,24 @@
                                             <button type="submit" name="show_stats" title="Show Statistics"
                                                 class="btn btn-primary">Show charts</button>
                                         </a>
-                                        <form action='/appManager/delete_all'>
+                                    </div>
+                                    <div class="card-block">
+                                        <a href='/photoUpload/knownKeys.html'>
                                             <button type="submit" name="delete_all"
                                                 title="clear data of RDS, S3 and memcache" class="btn btn-danger">Delete
                                                 All</button>
-                                        </form>
+                                        </a>
+                                    </div>
+                                    <div class="card-block">
                                         <form action='/appManager/clear_cache'>
                                             <button type="submit" name="clear_memcache"
                                                 title="clear data of memcache nodes" class="btn btn-warning">Clear
                                                 Cache</button>
                                         </form>
+                                        {%if msg%}
+                                        </br>
+                                        <p>Cache Status: {{msg}}</p>
+                                        {% endif %}
 
 
                                     </div>

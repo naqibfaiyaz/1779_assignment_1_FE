@@ -5,7 +5,7 @@ Copyright (c) 2019 - present AppSeed.us
 
 
 from apps.services.appManager import blueprint
-from apps import db
+from apps import db, backendUrl
 from flask import render_template, request, redirect, url_for
 import requests
 from jinja2 import TemplateNotFound
@@ -13,7 +13,6 @@ from apps import logger
 from apps.services.home.routes import get_segment
 from apps.services.nodePartitions.models import nodePartitions, memcacheNodes
 from apps.services.nodePartitions.routes import reassignPartitions
-from apps.services.memcacheManager.routes import clearCacheFromMemcaches,deleteAllKeysFromDB
 
 global curr_mode
 curr_mode='Manual'
@@ -46,16 +45,10 @@ def show_stats():
 
     return render_template('home/index.html', segment='index')
 
-@blueprint.route('/delete_all')
-def delete_all():
-    clearCacheFromMemcaches()
-    deleteAllKeysFromDB
-    return render_template('home/index.html', segment='index')
-
 @blueprint.route('/clear_cache')
 def clear_cache():
-    clearCacheFromMemcaches()
-    return render_template('home/index.html', segment='index')
+    response = requests.post(backendUrl + '/clearAll').json()['msg']
+    return render_template('home/index.html', segment='index', msg=response)
 
 
 
