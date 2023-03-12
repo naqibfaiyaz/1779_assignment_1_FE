@@ -6,9 +6,10 @@ Copyright (c) 2019 - present AppSeed.us
 from apps.services.memcacheManager import blueprint
 from flask import request, json, Response
 import requests
-from apps import logger, policyManagementUrl
+from apps import logger
 from apps.services.cloudWatch.routes import put_metric_data_cw, get_metric_data_cw
 from apps.services.nodePartitions.routes import getPartitionRange, getActiveNodes, changeNodes
+from apps.services.policyManager.routes import refreshConfiguration
 from apps.services.helper import upload_file, removeAllImages
 
 # Upload keys from caches from all the nodes
@@ -135,7 +136,7 @@ def changePolicyInDB(policyParam=None, cacheSizeParam=None):
     if numNodes:
         nodeNum = int(numNodes)
         if currentNodeCount!=nodeNum:
-            print(nodeNum)
+            print('nodeNum' + str(nodeNum))
             print(currentNodeCount)
             print(nodeNum-currentNodeCount)
             changeNodes(nodeNum-currentNodeCount)
@@ -145,7 +146,9 @@ def changePolicyInDB(policyParam=None, cacheSizeParam=None):
     maxMiss = request.args.get('maxMiss')
     minMiss = request.args.get('minMiss')
     
-    response = requests.post(policyManagementUrl+"/refreshConfig", params={'mode': mode, 'numNodes': numNodes, 'cacheSize': cacheSize, 'policy': policy, 'expRatio': expRatio, 'shrinkRatio': shrinkRatio, 'maxMiss': maxMiss, 'minMiss': minMiss})
+    # response = requests.post(policyManagementUrl+"/refreshConfig", params={'mode': mode, 'numNodes': numNodes, 'cacheSize': cacheSize, 'policy': policy, 'expRatio': expRatio, 'shrinkRatio': shrinkRatio, 'maxMiss': maxMiss, 'minMiss': minMiss})
+    print('cacheSize: '  + str(cacheSize))
+    response = refreshConfiguration(policy, cacheSize, mode, numNodes, expRatio, shrinkRatio, maxMiss, minMiss)
 
     print(response)
 
@@ -159,7 +162,7 @@ def changePolicyInDB(policyParam=None, cacheSizeParam=None):
             print(tempData)
     # response = requests.post('http://' + getNodeForKey['public_ip'] + ':5001/memcache/api/refreshConfig', data={"replacement_policy": policy,"capacity": newCapacity})
     test_getMemcacheSize()
-    return Response(json.dumps(json.loads(response.content)), status=200, mimetype='application/json')
+    return Response(json.dumps(json.loads(response.data)), status=200, mimetype='application/json')
         # ?policy=no_cache&mode=manual&numNodes=3
 @blueprint.route('/getCurrentPolicy/<ip>',methods=['POST', 'GET'])
 def getPolicyFromDB(ip):

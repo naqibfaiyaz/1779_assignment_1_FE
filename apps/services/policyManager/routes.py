@@ -8,30 +8,31 @@ from flask import render_template, request, redirect, url_for, Response
 import requests, json
 from jinja2 import TemplateNotFound
 from apps import logger, db
-from apps.services.home.routes import get_segment
 from apps.services.policyManager.models import policyConfig
 from sqlalchemy import func
 
 
 @blueprint.route('/refreshConfig', methods=["POST"])
-def refreshConfiguration():
+def refreshConfiguration(policy=None, capacity=None, mode=None, numNodes=None, expRatio=None, shrinkRatio=None, maxMiss=None, minMiss=None):
     # test_getMemcacheSize()
-    if request.args.get("policy") and request.args.get("policy")=='no_cache':
+    policy = policy or request.args.get("policy")
+    capacity = capacity or request.args.get("cacheSize")
+    if policy and policy=='no_cache':
         capacity=0
-    elif request.args.get("cacheSize"):
-        capacity = int(request.args.get("cacheSize"))*1024*1024
+    elif capacity:
+        capacity = int(capacity)
     else:
         capacity = None
-
+    print(capacity)
     allPolicies = {
-        "policy": request.args.get("policy"),
+        "policy": policy,
         "cacheSize": capacity,
-        "mode": request.args.get('mode'), 
-        "numNodes":  request.args.get('numNodes'), 
-        "expRatio": request.args.get('expRatio'), 
-        "shrinkRatio": request.args.get('shrinkRatio'), 
-        "maxMiss":  request.args.get('maxMiss'), 
-        "minMiss": request.args.get('minMiss')
+        "mode": mode or request.args.get('mode'), 
+        "numNodes":  numNodes or request.args.get('numNodes'), 
+        "expRatio": expRatio or request.args.get('expRatio'), 
+        "shrinkRatio": shrinkRatio or request.args.get('shrinkRatio'), 
+        "maxMiss":  maxMiss or request.args.get('maxMiss'), 
+        "minMiss": minMiss or request.args.get('minMiss')
     }
 
     print(allPolicies)
@@ -72,10 +73,10 @@ def getConfigAll():
             response[policy['policy_name']] = int(policy['value'])
         elif policy['policy_name']=='maxMiss' or policy['policy_name']=='minMiss':
             response[policy['policy_name']] = float(policy['value'])
-        elif policy['policy_name']=='policy' or policy['value']=='random':
+        elif policy['policy_name']=='policy' and policy['value']=='random':
             response[policy['policy_name']] = 'RR'
         elif policy['policy_name']=='cacheSize':
-            response[policy['policy_name']] = int(int(policy['value'])/1024/1024)
+            response[policy['policy_name']] = int(int(policy['value']))
         else:
             response[policy['policy_name']] = policy['value']
 
