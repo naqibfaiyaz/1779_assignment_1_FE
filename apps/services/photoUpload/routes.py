@@ -21,7 +21,6 @@ def index():
 # @login_required
 def route_template(template):
     try:
-        print(template)
         if not template.endswith('.html'):
             template += '.html'
 
