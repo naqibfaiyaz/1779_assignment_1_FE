@@ -107,7 +107,7 @@ def autoModeMemcache1():
     shrinkRatio = request.form.get('ratio_shrink')
     maxMiss = request.form.get('Max_miss_threshold')
     minMiss = request.form.get('Min_miss_threshold')
-    curr_config = requests.post(backendUrl + '/configure_cache',
+    response = requests.post(backendUrl + '/configure_cache',
                              params={
                 'policy': policy or None,
                 'cacheSize': cacheSize or None,
@@ -116,7 +116,8 @@ def autoModeMemcache1():
                 'minMiss': minMiss or None,
                 'expRatio': expRatio or None,
                 'shrinkRatio': shrinkRatio or None,
-        }).json()
+        })
+    curr_config=json.loads(response.content)
     return render_template('home/index.html', segment='index',curr_config=json.dumps(curr_config))
     
 
