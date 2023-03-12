@@ -16,6 +16,7 @@ from apps import AWS_ACCESS_KEY, AWS_SECRET_KEY, db, app_manager_fe
 @blueprint.route('/')
 # @login_required
 def RedirectIndex():
+    print('x')
     ec2 = boto3.client('ec2',
         aws_access_key_id=AWS_ACCESS_KEY,
         aws_secret_access_key=AWS_SECRET_KEY,
@@ -66,14 +67,16 @@ def RedirectIndex():
         db.session.add_all(newNodePartitions)   
         db.session.commit()
 
-    changePolicyInDB('LRU', 10)
+    print('done')
+    # changePolicyInDB('LRU', 10)
 
     return index()
 
 @blueprint.route('/index')
 # @login_required
 def index():
-    return redirect(app_manager_fe + '/index', code=302)
+    print(app_manager_fe)
+    return redirect(app_manager_fe + '/index', code=302) # required for core BE
 
 @blueprint.route('/<template>')
 # @login_required

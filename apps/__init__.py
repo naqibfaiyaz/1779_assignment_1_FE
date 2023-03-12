@@ -34,6 +34,7 @@ def register_extensions(app):
 def register_blueprints(app):
     for module_name in ('home', 'photoUpload', 'nodePartitions', 'cloudWatch', 'memcacheManager', 's3Manager', 'policyManager', 'appManager', 'autoScaler'):
         module = import_module('apps.services.{}.routes'.format(module_name))
+        print(module)
         app.register_blueprint(module.blueprint)
 
 

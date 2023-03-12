@@ -70,7 +70,7 @@ def getSinglePhotoFromMemcache(url_key):
 # list all caches from all the nodes
 @blueprint.route('/list_cache',methods=['POST'])
 def getAllPhotosFromCache():
-    test_getMemcacheSize()
+    # test_getMemcacheSize()
     getNodeForKey = json.loads(getActiveNodes().data)["details"]
 
     allCache={'content':{},'keys':[], 'success': None}
