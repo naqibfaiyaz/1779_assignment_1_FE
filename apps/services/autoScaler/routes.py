@@ -9,11 +9,9 @@ import boto3
 def autoScalerFunction():
     # Let's use Amazon S3
     missRate = requests.post(backendUrl + '/getRate?rate=miss').json()['value']
-    config = requests.post(backendUrl + '/getCurrentConfig').json()
+    config = requests.post(policyManagementUrl + '/getCurrentConfig').json()
     activeNodeCount = requests.post(backendUrl + '/getNumNodes').json()
-    print(missRate)
-    print(config)
-    print(activeNodeCount)
+
     # missRate=1
 
     if missRate > config['maxMiss']:
