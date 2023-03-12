@@ -30,13 +30,10 @@ def route_template(template):
 
         # Serve the file (if exists) from app/templates/home/FILE.html
         if segment=='photos.html':
-            return redirect(FE_url + "/photoUpload/photos.html", code=302) # needed for app-manager EC2 instance
             return render_template("photoUpload/photos.html", memcache=getAllPhotos()) # needed for Core FE EC2 instance
-        if segment=='dashboard.html':
-            # return redirect(app_manager_fe + "/photoUpload/dashboard.html", code=302) # needed for Core FE EC2 instance
+        if segment=='dashboard.html': 
             return render_template("photoUpload/dashboard.html", grafanaUrl=grafanaUrl) # needed for app-manager EC2 instance
         elif segment=='knownKeys.html':
-            return redirect(FE_url + "/photoUpload/knownKeys.html", code=302) # needed for app-manager EC2 instance
             return render_template("photoUpload/knownKeys.html", keysFromDB=getDBAllPhotos()) # needed for Core FE EC2 instance
         elif segment=='cache.html':
             return render_template("photoUpload/cache.html", policies=getPolicy())

@@ -145,7 +145,7 @@ def changePolicyInDB(policyParam=None, cacheSizeParam=None):
     maxMiss = request.args.get('maxMiss')
     minMiss = request.args.get('minMiss')
     
-    response = requests.post("http://localhost:5000/policyManager/refreshConfig", params={'mode': mode, 'numNodes': numNodes, 'cacheSize': cacheSize, 'policy': policy, 'expRatio': expRatio, 'shrinkRatio': shrinkRatio, 'maxMiss': maxMiss, 'minMiss': minMiss})
+    response = requests.post(policyManagementUrl+"/refreshConfig", params={'mode': mode, 'numNodes': numNodes, 'cacheSize': cacheSize, 'policy': policy, 'expRatio': expRatio, 'shrinkRatio': shrinkRatio, 'maxMiss': maxMiss, 'minMiss': minMiss})
 
     print(response)
 
