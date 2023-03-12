@@ -73,7 +73,7 @@ def RedirectIndex():
 @blueprint.route('/index')
 # @login_required
 def index():
-    return redirect(app_manager_fe + '/index', code=302) # required for core BE
+    return redirect(app_manager_fe + '/index', code=302)
 
 @blueprint.route('/<template>')
 # @login_required
