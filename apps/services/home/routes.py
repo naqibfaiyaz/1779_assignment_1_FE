@@ -32,7 +32,9 @@ def RedirectIndex():
         },
     ])
 
+    print(instances)
     newMemcacheNodes=[]
+    print(memcacheNodes.query.count())
     if memcacheNodes.query.count()==0:
         for instance in instances['Reservations']:
             for node in instance['Instances']:
